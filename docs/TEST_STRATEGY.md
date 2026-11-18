@@ -1,0 +1,2 @@
+# Mobile test strategy
+Gates: strict typecheck, lint, unit tests, API adapter contracts, Expo config validation. Device smoke tests Android and iOS: login/logout persistence, SecureStore, start/end shift, forced end, automatic end, department/all-staff routing, realtime reconnect, push permission denied, background notification, sound fallback, offline recovery, 401 and 500, safe-area, RTL, no duplicate calls. Mock and live adapter parity; never mark device checks passed unless run.
