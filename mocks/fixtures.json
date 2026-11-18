@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "1.0.0-draft",
+  "restaurant": {
+    "id": "rest-demo",
+    "name": "مطعم الياسمين",
+    "status": "active",
+    "subscription": {
+      "plan": "pro",
+      "status": "active",
+      "endsAt": "2027-01-18T00:00:00Z",
+      "graceDays": 7
+    }
+  },
+  "branches": [
+    {
+      "id": "branch-1",
+      "restaurantId": "rest-demo",
+      "name": "الفرع الرئيسي",
+      "callSettings": {
+        "enabled": true,
+        "waiterEnabled": true,
+        "hookahEnabled": true,
+        "routingMode": "department"
+      },
+      "floors": [
+        {
+          "id": "floor-1",
+          "name": "الأرضي"
+        }
+      ],
+      "areas": [
+        {
+          "id": "area-1",
+          "name": "داخلي",
+          "floorId": "floor-1"
+        }
+      ],
+      "tables": [
+        {
+          "id": "table-1",
+          "number": "1",
+          "areaId": "area-1",
+          "qrToken": "demo-qr-table-1",
+          "qrEnabled": true,
+          "callsEnabled": true
+        },
+        {
+          "id": "table-2",
+          "number": "2",
+          "areaId": "area-1",
+          "qrToken": "demo-qr-table-2",
+          "qrEnabled": true,
+          "callsEnabled": false
+        }
+      ],
+      "categories": [
+        {
+          "id": "cat-drinks",
+          "name": "مشروبات",
+          "sortOrder": 1
+        },
+        {
+          "id": "cat-food",
+          "name": "وجبات",
+          "sortOrder": 2
+        }
+      ],
+      "products": [
+        {
+          "id": "prod-1",
+          "categoryId": "cat-drinks",
+          "name": "قهوة عربية",
+          "description": "قهوة طازجة",
+          "priceMinor": 250,
+          "oldPriceMinor": null,
+          "currency": "USD",
+          "images": [
+            "https://placehold.co/640x480/png?text=Coffee"
+          ],
+          "availability": "available",
+          "tags": [
+            "popular"
+          ],
+          "sortOrder": 1
+        },
+        {
+          "id": "prod-2",
+          "categoryId": "cat-food",
+          "name": "برغر",
+          "description": "برغر لحم",
+          "priceMinor": 950,
+          "oldPriceMinor": 1100,
+          "currency": "USD",
+          "images": [
+            "https://placehold.co/640x480/png?text=Burger"
+          ],
+          "availability": "sold_out",
+          "tags": [],
+          "sortOrder": 2
+        }
+      ]
+    }
+  ],
+  "employees": [
+    {
+      "id": "emp-1",
+      "branchId": "branch-1",
+      "name": "أحمد",
+      "username": "waiter.demo",
+      "department": "waiter",
+      "shiftStatus": "active"
+    },
+    {
+      "id": "emp-2",
+      "branchId": "branch-1",
+      "name": "خالد",
+      "username": "hookah.demo",
+      "department": "hookah",
+      "shiftStatus": "inactive"
+    }
+  ],
+  "calls": [
+    {
+      "id": "call-1",
+      "branchId": "branch-1",
+      "tableId": "table-1",
+      "type": "waiter",
+      "createdAt": "2026-11-18T12:00:00Z",
+      "deliveryState": "queued",
+      "ownerAlerted": false
+    }
+  ],
+  "ownerAlerts": [
+    {
+      "id": "alert-1",
+      "branchId": "branch-1",
+      "type": "NO_ACTIVE_STAFF",
+      "createdAt": "2026-11-18T11:00:00Z",
+      "read": false
+    }
+  ],
+  "scenarios": [
+    "happy_path",
+    "no_active_staff",
+    "subscription_expired",
+    "qr_revoked",
+    "table_disabled",
+    "call_cooldown",
+    "offline",
+    "empty_menu",
+    "push_permission_denied"
+  ]
+}
