@@ -1,12 +1,2 @@
-# AGENTS.md — Repository engineering rules
-- Follow the product PRD and `docs/API_CONTRACTS.md`; no speculative product features.
-- Use TypeScript strict mode, reusable typed modules, composition over duplication, accessible UI and explicit loading/error/empty states.
-- No hardcoded API response shapes in screens. Network access only through typed service/repository adapters.
-- Mock and live adapters MUST implement the same interface and validate against the same contract. Toggle by environment config; never scatter `if(mock)` throughout UI.
-- Never edit shared fixtures/contract without updating `docs/CONTRACT_CHANGELOG.md`, corresponding tests, and other impacted repositories.
-- Never treat QR as physical-presence proof. No GPS in V1. Server enforces call cooldown and idempotency.
-- Tenant and branch scope are always verified on server. No passwords/tokens in logs or fixtures.
-- Reuse design tokens, UI primitives, and shared domain types. Prefer feature modules over large pages/components.
-- All new features need unit tests, integration/contract tests where relevant, and documentation.
-- Never commit secrets or production credentials. Avoid premature abstractions and unnecessary dependencies.
-- Do not push or merge application code without explicit approval; documentation changes in this request are authorized.
+# AGENTS.md — Expo employee app
+Read docs/MOBILE_PLAN.md, docs/ARCHITECTURE.md, docs/API_CONTRACTS.md, docs/RBAC_MATRIX.md and docs/TEST_STRATEGY.md. Feature-first Expo Router, strict TS. Keep screens thin; hooks/use cases orchestrate; typed repository ports separate live/mock. React Query for server state, SecureStore for sensitive tokens, never AsyncStorage/plain localStorage for credentials. Correct lifecycle and safe-area, permission handling, foreground/background push, offline and retry, session persistence, shifts and department routing. Server enforces branch/role. No GPS or call acknowledgement workflow in V1. Never put fixtures in screens. No secrets/logged tokens. Test iOS and Android; no claims of tested builds without actual execution. No cross-feature private imports, duplicate components, magic strings, unsafe casts, silent errors or unrelated refactors. API changes update backend OpenAPI and affected adapters.
