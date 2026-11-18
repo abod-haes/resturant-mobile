@@ -1,1 +1,1 @@
-export {EmployeeHomeScreen as default} from "../src/features/calls/EmployeeHomeScreen";
+export {EmployeeHomeScreen as default} from "../src/features/calls";
