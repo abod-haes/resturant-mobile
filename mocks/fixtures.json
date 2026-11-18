@@ -1,104 +1,253 @@
 {
-  "schemaVersion": "1.0.0-draft",
-  "restaurant": {
-    "id": "rest-demo",
-    "name": "مطعم الياسمين",
-    "status": "active",
-    "subscription": {
-      "plan": "pro",
+  "schemaVersion": "1.1.0",
+  "plans": [
+    {
+      "id": "plan-basic",
+      "name": "أساسية",
+      "maxBranches": 1,
+      "maxTables": 30,
+      "maxEmployees": 10,
+      "features": [
+        "menu",
+        "waiter_calls"
+      ]
+    },
+    {
+      "id": "plan-pro",
+      "name": "احترافية",
+      "maxBranches": 5,
+      "maxTables": 200,
+      "maxEmployees": 100,
+      "features": [
+        "menu",
+        "waiter_calls",
+        "hookah_calls",
+        "analytics"
+      ]
+    }
+  ],
+  "contactMethods": [
+    {
+      "id": "contact-whatsapp",
+      "type": "whatsapp",
+      "label": "التواصل مع الإدارة",
+      "value": "+0000000000",
+      "enabled": true
+    }
+  ],
+  "restaurants": [
+    {
+      "id": "rest-demo",
+      "name": "مطعم الياسمين",
+      "slug": "yasmin",
+      "status": "active",
+      "ownerId": "owner-1",
+      "defaultRoutingMode": "department"
+    },
+    {
+      "id": "rest-2",
+      "name": "مطعم الورد",
+      "slug": "ward",
+      "status": "active",
+      "ownerId": "owner-2",
+      "defaultRoutingMode": "all"
+    }
+  ],
+  "subscriptions": [
+    {
+      "id": "sub-1",
+      "restaurantId": "rest-demo",
+      "planId": "plan-pro",
       "status": "active",
       "endsAt": "2027-01-18T00:00:00Z",
       "graceDays": 7
+    },
+    {
+      "id": "sub-2",
+      "restaurantId": "rest-2",
+      "planId": "plan-basic",
+      "status": "active",
+      "endsAt": "2027-02-01T00:00:00Z",
+      "graceDays": 7
     }
-  },
+  ],
   "branches": [
     {
       "id": "branch-1",
       "restaurantId": "rest-demo",
       "name": "الفرع الرئيسي",
+      "slug": "yasmin-main",
       "callSettings": {
         "enabled": true,
         "waiterEnabled": true,
         "hookahEnabled": true,
         "routingMode": "department"
-      },
-      "floors": [
-        {
-          "id": "floor-1",
-          "name": "الأرضي"
-        }
+      }
+    },
+    {
+      "id": "branch-2",
+      "restaurantId": "rest-demo",
+      "name": "فرع الحديقة",
+      "slug": "yasmin-garden",
+      "callSettings": {
+        "enabled": true,
+        "waiterEnabled": true,
+        "hookahEnabled": false,
+        "routingMode": "all"
+      }
+    },
+    {
+      "id": "branch-3",
+      "restaurantId": "rest-2",
+      "name": "الفرع الرئيسي",
+      "slug": "ward-main",
+      "callSettings": {
+        "enabled": true,
+        "waiterEnabled": true,
+        "hookahEnabled": false,
+        "routingMode": "all"
+      }
+    }
+  ],
+  "floors": [
+    {
+      "id": "floor-1",
+      "branchId": "branch-1",
+      "name": "الأرضي"
+    },
+    {
+      "id": "floor-2",
+      "branchId": "branch-1",
+      "name": "الأول"
+    },
+    {
+      "id": "floor-3",
+      "branchId": "branch-2",
+      "name": "الأرضي"
+    }
+  ],
+  "areas": [
+    {
+      "id": "area-1",
+      "branchId": "branch-1",
+      "floorId": "floor-1",
+      "name": "داخلي"
+    },
+    {
+      "id": "area-2",
+      "branchId": "branch-1",
+      "floorId": "floor-2",
+      "name": "تراس"
+    },
+    {
+      "id": "area-3",
+      "branchId": "branch-2",
+      "floorId": "floor-3",
+      "name": "حديقة"
+    }
+  ],
+  "tables": [
+    {
+      "id": "table-1",
+      "branchId": "branch-1",
+      "areaId": "area-1",
+      "number": "1",
+      "qrToken": "demo-qr-table-1",
+      "qrEnabled": true,
+      "callsEnabled": true,
+      "archivedAt": null
+    },
+    {
+      "id": "table-2",
+      "branchId": "branch-1",
+      "areaId": "area-2",
+      "number": "2",
+      "qrToken": "demo-qr-table-2",
+      "qrEnabled": true,
+      "callsEnabled": false,
+      "archivedAt": null
+    },
+    {
+      "id": "table-3",
+      "branchId": "branch-2",
+      "areaId": "area-3",
+      "number": "3",
+      "qrToken": "demo-qr-table-3",
+      "qrEnabled": true,
+      "callsEnabled": true,
+      "archivedAt": null
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat-1",
+      "branchId": "branch-1",
+      "name": "مشروبات",
+      "sortOrder": 1,
+      "archivedAt": null
+    },
+    {
+      "id": "cat-2",
+      "branchId": "branch-1",
+      "name": "وجبات",
+      "sortOrder": 2,
+      "archivedAt": null
+    },
+    {
+      "id": "cat-3",
+      "branchId": "branch-2",
+      "name": "مشروبات",
+      "sortOrder": 1,
+      "archivedAt": null
+    }
+  ],
+  "products": [
+    {
+      "id": "prod-1",
+      "branchId": "branch-1",
+      "categoryId": "cat-1",
+      "name": "قهوة عربية",
+      "description": "قهوة طازجة",
+      "priceMinor": 250,
+      "oldPriceMinor": null,
+      "currency": "USD",
+      "images": [],
+      "tags": [
+        "popular"
       ],
-      "areas": [
-        {
-          "id": "area-1",
-          "name": "داخلي",
-          "floorId": "floor-1"
-        }
-      ],
-      "tables": [
-        {
-          "id": "table-1",
-          "number": "1",
-          "areaId": "area-1",
-          "qrToken": "demo-qr-table-1",
-          "qrEnabled": true,
-          "callsEnabled": true
-        },
-        {
-          "id": "table-2",
-          "number": "2",
-          "areaId": "area-1",
-          "qrToken": "demo-qr-table-2",
-          "qrEnabled": true,
-          "callsEnabled": false
-        }
-      ],
-      "categories": [
-        {
-          "id": "cat-drinks",
-          "name": "مشروبات",
-          "sortOrder": 1
-        },
-        {
-          "id": "cat-food",
-          "name": "وجبات",
-          "sortOrder": 2
-        }
-      ],
-      "products": [
-        {
-          "id": "prod-1",
-          "categoryId": "cat-drinks",
-          "name": "قهوة عربية",
-          "description": "قهوة طازجة",
-          "priceMinor": 250,
-          "oldPriceMinor": null,
-          "currency": "USD",
-          "images": [
-            "https://placehold.co/640x480/png?text=Coffee"
-          ],
-          "availability": "available",
-          "tags": [
-            "popular"
-          ],
-          "sortOrder": 1
-        },
-        {
-          "id": "prod-2",
-          "categoryId": "cat-food",
-          "name": "برغر",
-          "description": "برغر لحم",
-          "priceMinor": 950,
-          "oldPriceMinor": 1100,
-          "currency": "USD",
-          "images": [
-            "https://placehold.co/640x480/png?text=Burger"
-          ],
-          "availability": "sold_out",
-          "tags": [],
-          "sortOrder": 2
-        }
-      ]
+      "sortOrder": 1,
+      "availability": "available",
+      "archivedAt": null
+    },
+    {
+      "id": "prod-2",
+      "branchId": "branch-1",
+      "categoryId": "cat-2",
+      "name": "برغر",
+      "description": "برغر لحم",
+      "priceMinor": 950,
+      "oldPriceMinor": 1100,
+      "currency": "USD",
+      "images": [],
+      "tags": [],
+      "sortOrder": 1,
+      "availability": "sold_out",
+      "archivedAt": null
+    },
+    {
+      "id": "prod-3",
+      "branchId": "branch-2",
+      "categoryId": "cat-3",
+      "name": "شاي",
+      "description": "شاي ساخن",
+      "priceMinor": 150,
+      "oldPriceMinor": null,
+      "currency": "USD",
+      "images": [],
+      "tags": [],
+      "sortOrder": 1,
+      "availability": "available",
+      "archivedAt": null
     }
   ],
   "employees": [
@@ -108,7 +257,7 @@
       "name": "أحمد",
       "username": "waiter.demo",
       "department": "waiter",
-      "shiftStatus": "active"
+      "archivedAt": null
     },
     {
       "id": "emp-2",
@@ -116,7 +265,24 @@
       "name": "خالد",
       "username": "hookah.demo",
       "department": "hookah",
-      "shiftStatus": "inactive"
+      "archivedAt": null
+    },
+    {
+      "id": "emp-3",
+      "branchId": "branch-2",
+      "name": "سامي",
+      "username": "waiter.garden",
+      "department": "waiter",
+      "archivedAt": null
+    }
+  ],
+  "shifts": [
+    {
+      "id": "shift-1",
+      "employeeId": "emp-1",
+      "branchId": "branch-1",
+      "startedAt": "2026-11-18T10:00:00Z",
+      "endedAt": null
     }
   ],
   "calls": [
@@ -130,24 +296,22 @@
       "ownerAlerted": false
     }
   ],
-  "ownerAlerts": [
+  "ownerAlerts": [],
+  "auditLogs": [],
+  "templates": [
     {
-      "id": "alert-1",
-      "branchId": "branch-1",
-      "type": "NO_ACTIVE_STAFF",
-      "createdAt": "2026-11-18T11:00:00Z",
-      "read": false
+      "id": "template-1",
+      "name": "حديث",
+      "colors": {
+        "primary": "#26724e"
+      },
+      "font": "system-ui"
     }
   ],
-  "scenarios": [
-    "happy_path",
-    "no_active_staff",
-    "subscription_expired",
-    "qr_revoked",
-    "table_disabled",
-    "call_cooldown",
-    "offline",
-    "empty_menu",
-    "push_permission_denied"
+  "branchTemplateAssignments": [
+    {
+      "branchId": "branch-1",
+      "templateId": "template-1"
+    }
   ]
 }
