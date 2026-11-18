@@ -1,2 +1,6 @@
 # AGENTS.md — Expo employee app
+
+## Mandatory workflow and automated guard
+Read `docs/ENGINEERING_PLAYBOOK.md` before every change. Run `npm run check:architecture` before opening a PR. The checker enforces selected import boundaries; it does not replace code review, strict typecheck or tests. Keep architectural exceptions in a reviewed ADR, never bypass the checker. No code changes may be described as verified unless the commands actually ran.
+
 Read docs/MOBILE_PLAN.md, docs/ARCHITECTURE.md, docs/API_CONTRACTS.md, docs/RBAC_MATRIX.md and docs/TEST_STRATEGY.md. Feature-first Expo Router, strict TS. Keep screens thin; hooks/use cases orchestrate; typed repository ports separate live/mock. React Query for server state, SecureStore for sensitive tokens, never AsyncStorage/plain localStorage for credentials. Correct lifecycle and safe-area, permission handling, foreground/background push, offline and retry, session persistence, shifts and department routing. Server enforces branch/role. No GPS or call acknowledgement workflow in V1. Never put fixtures in screens. No secrets/logged tokens. Test iOS and Android; no claims of tested builds without actual execution. No cross-feature private imports, duplicate components, magic strings, unsafe casts, silent errors or unrelated refactors. API changes update backend OpenAPI and affected adapters.
