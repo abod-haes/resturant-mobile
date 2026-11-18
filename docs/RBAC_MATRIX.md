@@ -1,0 +1,2 @@
+# Employee access matrix
+EMPLOYEE: authenticate; view own profile, branch, department; start/end own shift; register/unregister own device; view relevant call history for assigned branch and routing policy. Deny all platform admin, owner management, other branch and other employee actions. OWNER can end employee shift from owner dashboard but employee cannot do so for others. Subscription/branch status checked on server. Tests: branch spoofing, stolen/expired token, background push revoked device, disabled shift, session persistence.
