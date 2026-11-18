@@ -1,0 +1,82 @@
+{
+  "version": "1.0.0-draft",
+  "defaultScenario": "happy_path",
+  "scenarios": {
+    "happy_path": {
+      "httpStatus": 200,
+      "latencyMs": 250
+    },
+    "empty_menu": {
+      "categories": [],
+      "products": []
+    },
+    "no_active_staff": {
+      "activeEmployees": [],
+      "callResult": {
+        "deliveryState": "no_staff",
+        "ownerAlerted": true
+      }
+    },
+    "subscription_expired": {
+      "subscriptionStatus": "expired",
+      "callError": {
+        "status": 403,
+        "code": "SUBSCRIPTION_INACTIVE"
+      }
+    },
+    "qr_revoked": {
+      "callError": {
+        "status": 410,
+        "code": "QR_REVOKED"
+      }
+    },
+    "table_disabled": {
+      "callError": {
+        "status": 403,
+        "code": "TABLE_DISABLED"
+      }
+    },
+    "call_cooldown": {
+      "callError": {
+        "status": 429,
+        "code": "COOLDOWN_ACTIVE",
+        "retryAfterSeconds": 8
+      }
+    },
+    "offline": {
+      "networkError": true
+    },
+    "push_permission_denied": {
+      "devicePushEnabled": false,
+      "realtimeAvailable": true
+    },
+    "server_error": {
+      "httpStatus": 500,
+      "error": {
+        "code": "INTERNAL_ERROR"
+      }
+    },
+    "unauthorized": {
+      "httpStatus": 401,
+      "error": {
+        "code": "UNAUTHORIZED"
+      }
+    },
+    "slow_network": {
+      "latencyMs": 4000
+    },
+    "large_dataset": {
+      "generate": {
+        "categories": 30,
+        "products": 500,
+        "tables": 100,
+        "employees": 50,
+        "calls": 1000
+      },
+      "pagination": {
+        "defaultLimit": 20,
+        "maxLimit": 100
+      }
+    }
+  }
+}
