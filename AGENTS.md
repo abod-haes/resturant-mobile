@@ -1,0 +1,12 @@
+# AGENTS.md — Repository engineering rules
+- Follow the product PRD and `docs/API_CONTRACTS.md`; no speculative product features.
+- Use TypeScript strict mode, reusable typed modules, composition over duplication, accessible UI and explicit loading/error/empty states.
+- No hardcoded API response shapes in screens. Network access only through typed service/repository adapters.
+- Mock and live adapters MUST implement the same interface and validate against the same contract. Toggle by environment config; never scatter `if(mock)` throughout UI.
+- Never edit shared fixtures/contract without updating `docs/CONTRACT_CHANGELOG.md`, corresponding tests, and other impacted repositories.
+- Never treat QR as physical-presence proof. No GPS in V1. Server enforces call cooldown and idempotency.
+- Tenant and branch scope are always verified on server. No passwords/tokens in logs or fixtures.
+- Reuse design tokens, UI primitives, and shared domain types. Prefer feature modules over large pages/components.
+- All new features need unit tests, integration/contract tests where relevant, and documentation.
+- Never commit secrets or production credentials. Avoid premature abstractions and unnecessary dependencies.
+- Do not push or merge application code without explicit approval; documentation changes in this request are authorized.
