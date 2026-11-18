@@ -7,7 +7,9 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "check:architecture": "node scripts/check-boundaries.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "expo": "~54.0.0",
