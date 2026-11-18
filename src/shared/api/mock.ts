@@ -1,4 +1,9 @@
 import type{EmployeeApi,Shift,ServiceCall}from"./types";
-let shift:Shift|null=null;const calls:ServiceCall[]=[{id:"call-1",branchId:"branch-1",tableNumber:"1",floor:"الأرضي",area:"داخلي",type:"waiter",createdAt:new Date().toISOString()},{id:"call-2",branchId:"branch-1",tableNumber:"2",floor:"الأرضي",area:"تراس",type:"hookah",createdAt:new Date(Date.now()-600000).toISOString()}];
-const delay=()=>new Promise<void>(r=>setTimeout(r,200));
-export const mockEmployeeApi:EmployeeApi={async getCurrentShift(){await delay();return shift},async startShift(){await delay();shift={id:"shift-"+Date.now(),employeeId:"emp-1",startedAt:new Date().toISOString(),status:"active"};return shift},async endShift(){await delay();shift=null},async listCalls(){await delay();return [...calls]}};
+import {mockDb,mockDelay,mockControl}from"../mock/engine";
+const employeeId="emp-1";
+export const mockEmployeeApi:EmployeeApi={
+ async getCurrentShift(){await mockDelay();const shift=mockDb.list("shifts").find(s=>s.employeeId===employeeId&&!s.endedAt);return shift?{id:shift.id,employeeId:shift.employeeId,startedAt:shift.startedAt,status:"active"}:null},
+ async startShift(){await mockDelay();const existing=mockDb.list("shifts").find(s=>s.employeeId===employeeId&&!s.endedAt);if(existing)return {id:existing.id,employeeId,startedAt:existing.startedAt,status:"active"};const shift={id:crypto.randomUUID(),employeeId,branchId:"branch-1",startedAt:new Date().toISOString(),endedAt:null};mockControl.setState({...mockControl.snapshot(),shifts:[...mockDb.list("shifts"),shift]});return {id:shift.id,employeeId,startedAt:shift.startedAt,status:"active"}},
+ async endShift(){await mockDelay();const state=mockControl.snapshot();mockControl.setState({...state,shifts:state.shifts.map(s=>s.employeeId===employeeId&&!s.endedAt?{...s,endedAt:new Date().toISOString()}:s)})},
+ async listCalls(){await mockDelay();const branchId=mockDb.list("employees").find(e=>e.id===employeeId)?.branchId;const tables=mockDb.list("tables");const areas=mockDb.list("areas");const floors=mockDb.list("floors");return mockDb.list("calls").filter(c=>c.branchId===branchId).map(c=>{const table=tables.find(t=>t.id===c.tableId);const area=areas.find(a=>a.id===table?.areaId);return {id:c.id,branchId:c.branchId,tableNumber:table?.number??"—",area:area?.name??"—",floor:floors.find(f=>f.id===area?.floorId)?.name??"—",type:c.type as "waiter"|"hookah",createdAt:c.createdAt} satisfies ServiceCall})}
+};
