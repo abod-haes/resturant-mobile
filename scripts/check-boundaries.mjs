@@ -32,7 +32,8 @@ for(const file of roots.flatMap(x=>files(join(root,x)))){
    const feature=from.match(/^src\/features\/([^/]+)\//);
    if(feature&&dest){const to=relative(root,dest).replaceAll("\\","/").match(/^src\/features\/([^/]+)\//);if(to&&to[1]!==feature[1])fail(file,"Feature-to-feature deep import forbidden");}
    if(from.startsWith("src/shared/")&&dest&&isWithin(dest,join(root,"src/features")))fail(file,"Shared must not depend on features");
-   if(kind==="mobile"&&from.startsWith("app/")&&/\.\/\.\/src\/features\/.+\//.test(spec))fail(file,"Expo routes should import feature public entrypoints");
+   if(kind==="mobile"&&from.startsWith("app/")&&/src\/features\/[^/]+\//.test(spec))fail(file,"Expo routes must import from feature public entrypoints");
+   if(kind==="customer"&&from==="src/App.tsx"&&/features\/[^/]+\//.test(spec))fail(file,"App must import from feature public entrypoints");
   }
  }
 }
