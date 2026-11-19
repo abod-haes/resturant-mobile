@@ -13,4 +13,6 @@ jobs:
           node-version: '20'
       - run: npm install --no-audit --no-fund
       - run: npm run check:architecture
-      - run: npx tsc --noEmit
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run check:config
