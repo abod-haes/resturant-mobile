@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshControl, ScrollView, Text, View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -11,7 +12,7 @@ import { useSession } from "../auth";
 import { ShiftPanel } from "../shifts";
 import { CallCard } from "./CallCard";
 
-export function EmployeeHomeScreen() {
+export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   const { user, signOut } = useSession();
   const { colors } = useAppTheme();
   const queryClient = useQueryClient();
@@ -120,6 +121,7 @@ export function EmployeeHomeScreen() {
             )}
           </>
         )}
+        {footer}
       </ScrollView>
     </SafeAreaView>
   );
