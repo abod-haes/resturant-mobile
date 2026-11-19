@@ -1,3 +1,5 @@
+> Historical foundation note (before backend v1.3 and v1.8). For current integration readiness see docs/AUTH_MOBILE_HANDOFF.md, docs/MOBILE_BACKEND_V1_8_HANDOFF.md, and docs/NOTIFICATIONS_HANDOFF.md.
+
 # Employee app foundation — 2026-11-19
 
 ## Implemented

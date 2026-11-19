@@ -1,5 +1,5 @@
 import { ApiError } from "./errors";
-import type { EmployeeApi, Employee, CallPageQuery, ServiceCall } from "./types";
+import type { EmployeeApi, Employee, CallPageQuery, ServiceCall, Shift, Department } from "./types";
 import { mockDb, mockDelay, mockControl } from "../mock/engine";
 
 let accessToken: string | null = null;
@@ -38,6 +38,22 @@ function session() {
     user,
   };
 }
+const MOCK_SHIFT_MS = 12 * 60 * 60 * 1000;
+function asShift(
+  row: { id: string; employeeId: string; branchId: string; startedAt: string; endedAt: string | null },
+  department: Department,
+): Shift {
+  return {
+    id: row.id,
+    userId: row.employeeId,
+    branchId: row.branchId,
+    department,
+    startedAt: row.startedAt,
+    autoEndAt: new Date(Date.parse(row.startedAt) + MOCK_SHIFT_MS).toISOString(),
+    endedAt: row.endedAt,
+  };
+}
+
 export const mockEmployeeApi: EmployeeApi = {
   setAccessToken(next) { accessToken = next; },
   setReauthenticate() { /* Development adapter has non-expiring simulated sessions. */ },
@@ -76,14 +92,20 @@ export const mockEmployeeApi: EmployeeApi = {
   async getCurrentShift() {
     await mockDelay();
     const employee = currentEmployee();
-    const shift = mockDb.list("shifts").find((item) => item.employeeId === employee.id && !item.endedAt);
-    return shift ? { id: shift.id, employeeId: employee.id, startedAt: shift.startedAt, endedAt: null } : null;
+    const shift = mockDb.list("shifts").find((item) =>
+      item.employeeId === employee.id && !item.endedAt &&
+      Date.parse(item.startedAt) + MOCK_SHIFT_MS > Date.now(),
+    );
+    return shift ? asShift(shift, employee.department === "hookah" ? "hookah" : "waiter") : null;
   },
   async startShift() {
     await mockDelay();
     const employee = currentEmployee();
-    const existing = mockDb.list("shifts").find((item) => item.employeeId === employee.id && !item.endedAt);
-    if (existing) return { id: existing.id, employeeId: employee.id, startedAt: existing.startedAt, endedAt: null };
+    const existing = mockDb.list("shifts").find((item) =>
+      item.employeeId === employee.id && !item.endedAt &&
+      Date.parse(item.startedAt) + MOCK_SHIFT_MS > Date.now(),
+    );
+    if (existing) throw new ApiError("SHIFT_ALREADY_ACTIVE", 409, "الدوام مفتوح بالفعل.");
     const newShift = {
       id: "shift-" + Date.now(),
       employeeId: employee.id,
@@ -93,45 +115,45 @@ export const mockEmployeeApi: EmployeeApi = {
     };
     const state = mockControl.snapshot();
     mockControl.setState({ ...state, shifts: [...state.shifts, newShift] });
-    return { id: newShift.id, employeeId: employee.id, startedAt: newShift.startedAt, endedAt: null };
+    return asShift(newShift, employee.department === "hookah" ? "hookah" : "waiter");
   },
   async endShift() {
     await mockDelay();
     const employee = currentEmployee();
     const state = mockControl.snapshot();
+    const current = state.shifts.find((shift) => shift.employeeId === employee.id && !shift.endedAt &&
+      Date.parse(shift.startedAt) + MOCK_SHIFT_MS > Date.now());
+    if (!current) throw new ApiError("SHIFT_NOT_ACTIVE", 409, "لا يوجد دوام مفتوح.");
+    const endedAt = new Date().toISOString();
     mockControl.setState({
       ...state,
       shifts: state.shifts.map((shift) =>
-        shift.employeeId === employee.id && !shift.endedAt
-          ? { ...shift, endedAt: new Date().toISOString() } : shift,
-      ),
+        shift.id === current.id ? { ...shift, endedAt } : shift),
     });
+    return asShift({ ...current, endedAt }, employee.department === "hookah" ? "hookah" : "waiter");
   },
   async listCalls(query: CallPageQuery = {}) {
     await mockDelay();
     const employee = currentEmployee();
     const branch = mockDb.list("branches").find((item) => item.id === employee.branchId);
-    const tables = mockDb.list("tables");
-    const areas = mockDb.list("areas");
-    const floors = mockDb.list("floors");
+    // Mock approximates historical assignment using legacy fixture routing.
+    // Production history is enforced by backend call_outbox recipient ID.
     const rows: ServiceCall[] = mockDb.list("calls")
       .filter((call) => call.branchId === employee.branchId)
-      .filter((call) => branch?.callSettings.routingMode === "all" || call.type === employee.department)
+      .filter((call) => branch?.callSettings.routingMode === "all" ||
+        branch?.callSettings.routingMode === "all_on_shift" || call.type === employee.department)
+      .filter((call) => !query.type || call.type === query.type)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
-      .map((call) => {
-        const table = tables.find((item) => item.id === call.tableId);
-        const area = areas.find((item) => item.id === table?.areaId);
-        return {
-          id: call.id,
-          branchId: call.branchId,
-          tableId: call.tableId,
-          tableNumber: table?.number,
-          area: area?.name,
-          floor: floors.find((item) => item.id === area?.floorId)?.name,
-          type: call.type === "hookah" ? "hookah" : "waiter",
-          createdAt: call.createdAt,
-        };
-      });
+      .map((call) => ({
+        id: call.id,
+        branchId: call.branchId,
+        tableId: call.tableId,
+        type: call.type === "hookah" ? "hookah" : "waiter",
+        deliveryState: call.deliveryState === "no_staff" ? "no_staff" : "queued",
+        recipientsCount: call.deliveryState === "no_staff" ? 0 : 1,
+        ownerAlerted: call.ownerAlerted,
+        createdAt: call.createdAt,
+      }));
     const limit = Math.max(1, Math.min(100, query.limit ?? 20));
     const position = query.cursor ? rows.findIndex((call) => call.id === query.cursor) : -1;
     if (query.cursor && position < 0) throw new ApiError("VALIDATION_ERROR", 422, "مؤشر الصفحة غير صالح.");

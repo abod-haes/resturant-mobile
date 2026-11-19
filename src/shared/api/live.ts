@@ -115,11 +115,12 @@ export const liveEmployeeApi: EmployeeApi = {
     return unwrap(await authorized("POST", "/employee/shifts/start"), shiftSchema);
   },
   async endShift() {
-    await authorized("POST", "/employee/shifts/end");
+    return unwrap(await authorized("POST", "/employee/shifts/end"), shiftSchema);
   },
   async listCalls(query: CallPageQuery = {}) {
     const params: string[] = [];
     if (query.cursor) params.push("cursor=" + encodeURIComponent(query.cursor));
+    if (query.type) params.push("type=" + encodeURIComponent(query.type));
     params.push("limit=" + String(Math.min(100, Math.max(1, query.limit ?? 20))));
     const parsed = z.object({
       data: z.array(callSchema),

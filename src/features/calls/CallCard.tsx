@@ -7,7 +7,6 @@ import { strings } from "../../shared/config/strings";
 export function CallCard({ call }: { call: ServiceCall }) {
   const { colors } = useAppTheme();
   const isHookah = call.type === "hookah";
-  const room = [call.floor, call.area].filter(Boolean).join(" • ");
   const timestamp = new Date(call.createdAt);
   const dateLabel = Number.isNaN(timestamp.getTime())
     ? "—"
@@ -21,13 +20,12 @@ export function CallCard({ call }: { call: ServiceCall }) {
             {isHookah ? strings.hookah : strings.waiter}
           </Text>
         </View>
-        <Text style={[styles.table, { color: colors.text }]}>
-          {strings.table} {call.tableNumber ?? "—"}
-        </Text>
+        <Text style={[styles.table, { color: colors.text }]}>{strings.callTitle}</Text>
       </View>
       <Text style={[styles.location, { color: colors.muted }]}>
-        {room || strings.unknownLocation}
+        {strings.tableIdentifier}: {call.tableId}
       </Text>
+      <Text style={[styles.location, { color: colors.muted }]}>{strings.locationUnavailable}</Text>
       <Text style={[styles.date, { color: colors.muted }]}>{dateLabel}</Text>
     </AppCard>
   );
