@@ -26,9 +26,13 @@ describe("employee mock adapter", () => {
     await mockEmployeeApi.login({ username: "hookah.demo", password: "only-for-mock" });
     expect(await mockEmployeeApi.getCurrentShift()).toBeNull();
     const shift = await mockEmployeeApi.startShift();
-    expect(shift.employeeId).toBe("emp-2");
+    expect(shift.userId).toBe("emp-2");
+    expect(shift.branchId).toBe("branch-1");
+    expect(shift.department).toBe("hookah");
+    expect(Date.parse(shift.autoEndAt)).toBeGreaterThan(Date.parse(shift.startedAt));
     expect(await mockEmployeeApi.getCurrentShift()).toMatchObject({ id: shift.id });
-    await mockEmployeeApi.endShift();
+    const ended = await mockEmployeeApi.endShift();
+    expect(ended.endedAt).not.toBeNull();
     expect(await mockEmployeeApi.getCurrentShift()).toBeNull();
   });
   it("filters calls by branch and department", async () => {
