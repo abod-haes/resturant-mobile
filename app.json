@@ -8,7 +8,17 @@
     "userInterfaceStyle": "automatic",
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "./assets/sounds/waiter.wav",
+            "./assets/sounds/hookah.wav"
+          ],
+          "color": "#075E53"
+        }
+      ]
     ],
     "ios": {
       "supportsTablet": true
