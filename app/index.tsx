@@ -2,6 +2,7 @@ import { Redirect } from "expo-router";
 import { View, StyleSheet } from "react-native";
 import { useSession } from "../src/features/auth";
 import { EmployeeHomeScreen } from "../src/features/calls";
+import { NotificationPanel } from "../src/features/notifications";
 import { useAppTheme } from "../src/shared/config/theme";
 import { strings } from "../src/shared/config/strings";
 import { Feedback } from "../src/shared/ui/Feedback";
@@ -12,7 +13,7 @@ export default function Home() {
   if (status === "guest") return <Redirect href="/sign-in" />;
   if (status === "authenticated" && user?.mustChangePassword)
     return <Redirect href="/change-password" />;
-  if (status === "authenticated") return <EmployeeHomeScreen />;
+  if (status === "authenticated") return <EmployeeHomeScreen footer={<NotificationPanel />} />;
   return (
     <View style={[styles.center, { backgroundColor: colors.background }]}>
       <Feedback
