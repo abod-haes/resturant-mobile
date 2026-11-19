@@ -4,16 +4,17 @@ import { mockDb, mockDelay, mockControl } from "../mock/engine";
 
 let accessToken: string | null = null;
 const TOKEN_PREFIX = "mock-employee:";
+const REFRESH_PREFIX = "mock-refresh:";
 
+function employeeById(id: string) {
+  return mockDb.list("employees").find((item) => item.id === id && !item.archivedAt);
+}
 function currentEmployee() {
-  const id = accessToken?.startsWith(TOKEN_PREFIX)
-    ? accessToken.slice(TOKEN_PREFIX.length)
-    : null;
-  const employee = id ? mockDb.list("employees").find((item) => item.id === id && !item.archivedAt) : null;
+  const id = accessToken?.startsWith(TOKEN_PREFIX) ? accessToken.slice(TOKEN_PREFIX.length) : null;
+  const employee = id ? employeeById(id) : null;
   if (!employee) throw new ApiError("UNAUTHORIZED", 401, "الجلسة غير صالحة.");
   return employee;
 }
-
 function profile(): Employee {
   const employee = currentEmployee();
   const branch = mockDb.list("branches").find((item) => item.id === employee.branchId);
@@ -25,25 +26,37 @@ function profile(): Employee {
     branchId: employee.branchId,
     restaurantId: branch?.restaurantId,
     department: employee.department === "hookah" ? "hookah" : "waiter",
+    mustChangePassword: false,
   };
 }
-
+function session() {
+  const user = profile();
+  return {
+    accessToken: TOKEN_PREFIX + user.id,
+    refreshToken: REFRESH_PREFIX + user.id,
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    user,
+  };
+}
 export const mockEmployeeApi: EmployeeApi = {
   setAccessToken(next) { accessToken = next; },
+  setReauthenticate() { /* Development adapter has non-expiring simulated sessions. */ },
   async login({ username, password }) {
     await mockDelay();
-    // Development adapter only: no real password verification or fixture passwords.
     if (!password.trim()) throw new ApiError("VALIDATION_ERROR", 422, "أدخل كلمة المرور.");
     const employee = mockDb.list("employees").find(
       (item) => item.username === username.trim() && !item.archivedAt,
     );
     if (!employee) throw new ApiError("UNAUTHORIZED", 401, "اسم المستخدم غير موجود في البيانات التجريبية.");
     accessToken = TOKEN_PREFIX + employee.id;
-    return {
-      accessToken,
-      user: profile(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    };
+    return session();
+  },
+  async refresh(refreshToken) {
+    await mockDelay();
+    const id = refreshToken.startsWith(REFRESH_PREFIX) ? refreshToken.slice(REFRESH_PREFIX.length) : "";
+    if (!employeeById(id)) throw new ApiError("UNAUTHORIZED", 401, "جلسة تجريبية غير صالحة.");
+    accessToken = TOKEN_PREFIX + id;
+    return session();
   },
   async getMe() {
     await mockDelay();
@@ -53,24 +66,24 @@ export const mockEmployeeApi: EmployeeApi = {
     await mockDelay();
     accessToken = null;
   },
+  async changePassword({ currentPassword, newPassword }) {
+    await mockDelay();
+    currentEmployee();
+    if (!currentPassword.trim() || newPassword.length < 12)
+      throw new ApiError("VALIDATION_ERROR", 422, "كلمة المرور الجديدة قصيرة.");
+    accessToken = null;
+  },
   async getCurrentShift() {
     await mockDelay();
     const employee = currentEmployee();
-    const shift = mockDb.list("shifts").find(
-      (item) => item.employeeId === employee.id && !item.endedAt,
-    );
-    return shift
-      ? { id: shift.id, employeeId: employee.id, startedAt: shift.startedAt, endedAt: null }
-      : null;
+    const shift = mockDb.list("shifts").find((item) => item.employeeId === employee.id && !item.endedAt);
+    return shift ? { id: shift.id, employeeId: employee.id, startedAt: shift.startedAt, endedAt: null } : null;
   },
   async startShift() {
     await mockDelay();
     const employee = currentEmployee();
-    const existing = mockDb.list("shifts").find(
-      (item) => item.employeeId === employee.id && !item.endedAt,
-    );
-    if (existing)
-      return { id: existing.id, employeeId: employee.id, startedAt: existing.startedAt, endedAt: null };
+    const existing = mockDb.list("shifts").find((item) => item.employeeId === employee.id && !item.endedAt);
+    if (existing) return { id: existing.id, employeeId: employee.id, startedAt: existing.startedAt, endedAt: null };
     const newShift = {
       id: "shift-" + Date.now(),
       employeeId: employee.id,
@@ -90,8 +103,7 @@ export const mockEmployeeApi: EmployeeApi = {
       ...state,
       shifts: state.shifts.map((shift) =>
         shift.employeeId === employee.id && !shift.endedAt
-          ? { ...shift, endedAt: new Date().toISOString() }
-          : shift,
+          ? { ...shift, endedAt: new Date().toISOString() } : shift,
       ),
     });
   },

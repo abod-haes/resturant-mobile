@@ -3,11 +3,24 @@ import { ApiError } from "./errors";
 import {
   callSchema, employeeSchema, pageMetaSchema, sessionSchema, shiftSchema,
 } from "./types";
-import type { EmployeeApi, CallPageQuery, LoginInput } from "./types";
+import type { EmployeeApi, CallPageQuery, LoginInput, ChangePasswordInput } from "./types";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, "");
 const TIMEOUT_MS = 15000;
 let token: string | null = null;
+let reauthenticate: (() => Promise<void>) | null = null;
+let refreshInFlight: Promise<void> | null = null;
+
+function refreshOnce(): Promise<void> {
+  if (!reauthenticate) throw new ApiError("UNAUTHORIZED", 401, "انتهت الجلسة.");
+  if (!refreshInFlight) {
+    const callback = reauthenticate;
+    refreshInFlight = Promise.resolve().then(() => callback()).finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+}
 
 async function request(method: string, path: string, body?: unknown): Promise<unknown> {
   if (!BASE_URL || !/^https?:\/\//i.test(BASE_URL))
@@ -56,6 +69,18 @@ async function request(method: string, path: string, body?: unknown): Promise<un
   }
 }
 
+async function authorized(method: string, path: string, body?: unknown): Promise<unknown> {
+  if (!token) throw new ApiError("UNAUTHORIZED", 401, "الجلسة غير صالحة.");
+  try {
+    return await request(method, path, body);
+  } catch (error) {
+    if (!(error instanceof ApiError) || error.status !== 401 || !reauthenticate) throw error;
+    await refreshOnce();
+    if (!token) throw new ApiError("UNAUTHORIZED", 401, "انتهت الجلسة.");
+    return request(method, path, body);
+  }
+}
+
 function unwrap<T>(payload: unknown, schema: z.ZodType<T>): T {
   const result = z.object({ data: schema }).safeParse(payload);
   if (!result.success)
@@ -65,24 +90,32 @@ function unwrap<T>(payload: unknown, schema: z.ZodType<T>): T {
 
 export const liveEmployeeApi: EmployeeApi = {
   setAccessToken(next) { token = next; },
+  setReauthenticate(handler) { reauthenticate = handler; },
   async login(input: LoginInput) {
-    return unwrap(await request("POST", "/auth/login", input), sessionSchema);
+    return unwrap(await request("POST", "/auth/login", { ...input, client: "mobile" }), sessionSchema);
+  },
+  async refresh(refreshToken: string) {
+    return unwrap(await request("POST", "/auth/refresh", { refreshToken }), sessionSchema);
   },
   async getMe() {
-    return unwrap(await request("GET", "/auth/me"), employeeSchema);
+    return unwrap(await authorized("GET", "/auth/me"), employeeSchema);
   },
-  async logout() {
-    await request("POST", "/auth/logout");
+  async logout(refreshToken: string) {
+    unwrap(await request("POST", "/auth/logout", { refreshToken }), z.object({ loggedOut: z.boolean() }));
+    token = null;
+  },
+  async changePassword(input: ChangePasswordInput) {
+    unwrap(await authorized("POST", "/auth/change-password", input), z.object({ changed: z.literal(true) }));
     token = null;
   },
   async getCurrentShift() {
-    return unwrap(await request("GET", "/employee/shifts/current"), shiftSchema.nullable());
+    return unwrap(await authorized("GET", "/employee/shifts/current"), shiftSchema.nullable());
   },
   async startShift() {
-    return unwrap(await request("POST", "/employee/shifts/start"), shiftSchema);
+    return unwrap(await authorized("POST", "/employee/shifts/start"), shiftSchema);
   },
   async endShift() {
-    await request("POST", "/employee/shifts/end");
+    await authorized("POST", "/employee/shifts/end");
   },
   async listCalls(query: CallPageQuery = {}) {
     const params: string[] = [];
@@ -91,7 +124,7 @@ export const liveEmployeeApi: EmployeeApi = {
     const parsed = z.object({
       data: z.array(callSchema),
       meta: pageMetaSchema,
-    }).safeParse(await request("GET", "/employee/calls?" + params.join("&")));
+    }).safeParse(await authorized("GET", "/employee/calls?" + params.join("&")));
     if (!parsed.success)
       throw new ApiError("INVALID_RESPONSE", 0, "صيغة سجل الاستدعاءات لا تطابق العقد.");
     return parsed.data;

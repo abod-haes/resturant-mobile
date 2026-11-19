@@ -7,9 +7,11 @@ import { strings } from "../src/shared/config/strings";
 import { Feedback } from "../src/shared/ui/Feedback";
 
 export default function Home() {
-  const { status, restoreSession } = useSession();
+  const { status, user, restoreSession } = useSession();
   const { colors } = useAppTheme();
   if (status === "guest") return <Redirect href="/sign-in" />;
+  if (status === "authenticated" && user?.mustChangePassword)
+    return <Redirect href="/change-password" />;
   if (status === "authenticated") return <EmployeeHomeScreen />;
   return (
     <View style={[styles.center, { backgroundColor: colors.background }]}>
