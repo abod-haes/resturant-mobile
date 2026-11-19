@@ -9,6 +9,18 @@ const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, "");
 const TIMEOUT_MS = 15000;
 let token: string | null = null;
 let reauthenticate: (() => Promise<void>) | null = null;
+let refreshInFlight: Promise<void> | null = null;
+
+function refreshOnce(): Promise<void> {
+  if (!reauthenticate) throw new ApiError("UNAUTHORIZED", 401, "انتهت الجلسة.");
+  if (!refreshInFlight) {
+    const callback = reauthenticate;
+    refreshInFlight = Promise.resolve().then(() => callback()).finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+}
 
 async function request(method: string, path: string, body?: unknown): Promise<unknown> {
   if (!BASE_URL || !/^https?:\/\//i.test(BASE_URL))
@@ -63,7 +75,7 @@ async function authorized(method: string, path: string, body?: unknown): Promise
     return await request(method, path, body);
   } catch (error) {
     if (!(error instanceof ApiError) || error.status !== 401 || !reauthenticate) throw error;
-    await reauthenticate();
+    await refreshOnce();
     if (!token) throw new ApiError("UNAUTHORIZED", 401, "انتهت الجلسة.");
     return request(method, path, body);
   }
