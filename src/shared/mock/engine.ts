@@ -1,5 +1,17 @@
-import seed from "../../../mocks/fixtures.json";
-export type MockState = typeof seed;
+import fixtures from "../../../mocks/fixtures.json";
+type Seed = typeof fixtures;
+type OwnerAlert = {
+  id: string;
+  branchId: string;
+  type: "NO_ACTIVE_STAFF";
+  createdAt: string;
+  read: boolean;
+};
+export type MockState = Omit<Seed, "shifts" | "ownerAlerts"> & {
+  shifts: Array<Omit<Seed["shifts"][number], "endedAt"> & { endedAt: string | null }>;
+  ownerAlerts: OwnerAlert[];
+};
+const seed: MockState = fixtures;
 export type MockScenario = "happy_path"|"no_active_staff"|"subscription_expired"|"qr_revoked"|"table_disabled"|"call_cooldown"|"offline"|"empty_menu"|"server_error"|"slow_network";
 const clone=<T,>(value:T):T=>JSON.parse(JSON.stringify(value)) as T;
 const mockId=()=>`mock-${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
@@ -23,7 +35,7 @@ export const mockDb={
  find<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees"|"subscriptions"|"shifts">(key:K,id:string){return clone((state[key] as Array<{id:string}>).find(x=>x.id===id)??null)},
  create<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees">(key:K,item:MockState[K][number]){(state[key] as Array<MockState[K][number]>).push(clone(item));return clone(item)},
  patch<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees">(key:K,id:string,changes:Partial<MockState[K][number]>){const rows=state[key] as Array<{id:string}>;const index=rows.findIndex(x=>x.id===id);if(index<0)throw new MockApiError("NOT_FOUND",404);const next={...rows[index],...changes};rows[index]=next;return clone(next)},
- archive<K extends "tables"|"products"|"categories"|"employees">(key:K,id:string){return this.patch(key,id,{archivedAt:new Date().toISOString()} as Partial<MockState[K][number]>)},
+ archive<K extends "tables"|"products"|"categories"|"employees">(key:K,id:string){const rows=state[key] as Array<{id:string;archivedAt:string|null}>;const item=rows.find(x=>x.id===id);if(!item)throw new MockApiError("NOT_FOUND",404);item.archivedAt=new Date().toISOString();return clone(item)},
  listPage<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees"|"calls">(key:K,options:{branchId?:string;cursor?:string;limit?:number;search?:string}={}){const limit=Math.max(1,Math.min(100,options.limit??20));let rows=(state[key] as Array<{id:string;branchId?:string;name?:string}>).filter(x=>(!options.branchId||x.branchId===options.branchId)&&(!options.search||x.name?.includes(options.search)));const start=options.cursor?Math.max(0,rows.findIndex(x=>x.id===options.cursor)+1):0;rows=rows.slice(start,start+limit+1);return {items:clone(rows.slice(0,limit)),nextCursor:rows.length>limit?rows[limit-1].id:null}}
 };
 export const mockCalls={
