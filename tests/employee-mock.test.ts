@@ -7,19 +7,21 @@ describe("employee mock adapter", () => {
     mockControl.reset();
     mockEmployeeApi.setAccessToken(null);
   });
-
   it("blocks requests without a demo session", async () => {
     await expect(mockEmployeeApi.getMe()).rejects.toMatchObject({ status: 401 });
   });
-
-  it("restores a scoped employee identity", async () => {
+  it("restores employee identity using the refresh credential", async () => {
     const result = await mockEmployeeApi.login({ username: "waiter.demo", password: "only-for-mock" });
-    mockEmployeeApi.setAccessToken(result.accessToken);
-    await expect(mockEmployeeApi.getMe()).resolves.toMatchObject({
+    mockEmployeeApi.setAccessToken(null);
+    const refreshed = await mockEmployeeApi.refresh(result.refreshToken);
+    expect(refreshed.user).toMatchObject({
       id: "emp-1", role: "EMPLOYEE", branchId: "branch-1", department: "waiter",
+      mustChangePassword: false,
     });
   });
-
+  it("rejects unknown refresh credentials", async () => {
+    await expect(mockEmployeeApi.refresh("bad-token")).rejects.toMatchObject({ status: 401 });
+  });
   it("starts and ends the logged-in employee shift", async () => {
     await mockEmployeeApi.login({ username: "hookah.demo", password: "only-for-mock" });
     expect(await mockEmployeeApi.getCurrentShift()).toBeNull();
@@ -29,13 +31,11 @@ describe("employee mock adapter", () => {
     await mockEmployeeApi.endShift();
     expect(await mockEmployeeApi.getCurrentShift()).toBeNull();
   });
-
   it("filters calls by branch and department", async () => {
     await mockEmployeeApi.login({ username: "hookah.demo", password: "only-for-mock" });
     const calls = await mockEmployeeApi.listCalls();
     expect(calls.data.every((call) => call.branchId === "branch-1" && call.type === "hookah")).toBe(true);
   });
-
   it("returns paginated calls with a cursor", async () => {
     const state = mockControl.snapshot();
     mockControl.setState({
