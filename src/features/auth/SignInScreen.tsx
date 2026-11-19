@@ -50,7 +50,7 @@ export function SignInScreen() {
               label={strings.username}
               value={username}
               onChangeText={setUsername}
-              placeholder={strings.demoUsername}
+              placeholder={isMockMode ? strings.demoUsername : strings.username}
               autoCapitalize="none"
               autoCorrect={false}
               textContentType="username"

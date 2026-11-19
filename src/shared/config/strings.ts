@@ -28,5 +28,6 @@ export const strings = {
   loading: "جاري التحميل...",
   formMissing: "أدخل اسم المستخدم وكلمة المرور.",
   sessionRestoreError: "تعذر التحقق من جلستك. يمكن إعادة المحاولة بدون فقد تسجيل الدخول.",
+  sessionExpired: "انتهت الجلسة. سجّل الدخول مجدداً.",
   logoutOffline: "تم تسجيل خروجك من الجهاز، لكن تعذر إبلاغ الخادم.",
 } as const;

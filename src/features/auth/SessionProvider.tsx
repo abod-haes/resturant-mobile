@@ -42,7 +42,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
           await SecureStore.deleteItemAsync(TOKEN_KEY);
           employeeApi.setAccessToken(null);
           queryClient.clear();
-          setSession({ status: "guest", user: null, notice: strings.sessionRestoreError });
+          setSession({ status: "guest", user: null, notice: strings.sessionExpired });
         } catch {
           setSession({ status: "restore-error", user: null, notice: strings.sessionRestoreError });
         }

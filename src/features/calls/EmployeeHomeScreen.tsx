@@ -8,7 +8,7 @@ import { radius, spacing, useAppTheme } from "../../shared/config/theme";
 import { AppButton } from "../../shared/ui/AppButton";
 import { Feedback } from "../../shared/ui/Feedback";
 import { useSession } from "../auth";
-import { ShiftPanel } from "../shifts/ShiftPanel";
+import { ShiftPanel } from "../shifts";
 import { CallCard } from "./CallCard";
 
 export function EmployeeHomeScreen() {

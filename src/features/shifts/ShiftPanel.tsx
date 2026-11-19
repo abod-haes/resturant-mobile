@@ -40,7 +40,7 @@ export function ShiftPanel({ shift, loading, changing, error, onToggle, onRetry 
             variant={active ? "secondary" : "primary"}
             loading={changing}
             onPress={onToggle}
-            disabled={shift === undefined || Boolean(error && !active && shift === undefined)}
+            disabled={shift === undefined}
           />
         </>
       )}

@@ -24,7 +24,7 @@ function profile(): Employee {
     role: "EMPLOYEE",
     branchId: employee.branchId,
     restaurantId: branch?.restaurantId,
-    department: employee.department as "waiter" | "hookah",
+    department: employee.department === "hookah" ? "hookah" : "waiter",
   };
 }
 
@@ -116,7 +116,7 @@ export const mockEmployeeApi: EmployeeApi = {
           tableNumber: table?.number,
           area: area?.name,
           floor: floors.find((item) => item.id === area?.floorId)?.name,
-          type: call.type as "waiter" | "hookah",
+          type: call.type === "hookah" ? "hookah" : "waiter",
           createdAt: call.createdAt,
         };
       });
