@@ -13,10 +13,12 @@ type Props = {
   onToggle(): void;
   onRetry(): void;
 };
-
 export function ShiftPanel({ shift, loading, changing, error, onToggle, onRetry }: Props) {
   const { colors } = useAppTheme();
   const active = Boolean(shift);
+  const autoEnd = shift ? new Date(shift.autoEndAt).toLocaleTimeString("ar-SY", {
+    hour: "2-digit", minute: "2-digit",
+  }) : null;
   return (
     <AppCard>
       <View style={styles.header}>
@@ -33,6 +35,11 @@ export function ShiftPanel({ shift, loading, changing, error, onToggle, onRetry 
             <Text style={[styles.state, { color: active ? colors.success : colors.muted }]}>
               {active ? strings.onShift : strings.offShift}
             </Text>
+            {autoEnd && (
+              <Text style={[styles.state, { color: colors.muted }]}>
+                {strings.autoEndLabel} {autoEnd}
+              </Text>
+            )}
           </View>
           {error && <Text accessibilityRole="alert" style={[styles.error, { color: colors.danger }]}>{error}</Text>}
           <AppButton
@@ -51,7 +58,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row-reverse", alignItems: "center", gap: spacing.sm },
   dot: { width: 9, height: 9, borderRadius: 5 },
   heading: { fontSize: 17, fontWeight: "800", textAlign: "right" },
-  status: { borderRadius: radius.sm, padding: spacing.lg },
+  status: { borderRadius: radius.sm, padding: spacing.lg, gap: spacing.sm },
   state: { textAlign: "right", fontSize: 14, fontWeight: "600" },
   error: { fontSize: 12, lineHeight: 20, textAlign: "right" },
 });

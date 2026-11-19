@@ -1,17 +1,19 @@
 import { z } from "zod";
 
+export const departmentSchema = z.enum(["waiter", "hookah"]);
+export type Department = z.infer<typeof departmentSchema>;
+
 export const employeeSchema = z.object({
-  id: z.string(),
+  id: z.string().min(1),
   role: z.literal("EMPLOYEE"),
   restaurantId: z.string().nullable().optional(),
   branchId: z.string().nullable().optional(),
-  department: z.enum(["waiter", "hookah"]).nullable().optional(),
+  department: departmentSchema.nullable().optional(),
   mustChangePassword: z.boolean(),
   username: z.string().optional(),
   name: z.string().optional(),
 });
 export type Employee = z.infer<typeof employeeSchema>;
-export type Department = "waiter" | "hookah";
 
 export const sessionSchema = z.object({
   accessToken: z.string().min(1),
@@ -23,23 +25,32 @@ export type LoginSession = z.infer<typeof sessionSchema>;
 export type LoginInput = { username: string; password: string };
 export type ChangePasswordInput = { currentPassword: string; newPassword: string };
 
+/** Backend v1.8 ShiftDto; do not confuse userId with a mock employeeId. */
 export const shiftSchema = z.object({
-  id: z.string(),
-  employeeId: z.string(),
-  startedAt: z.string(),
-  endedAt: z.string().nullish(),
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  branchId: z.string().min(1),
+  department: departmentSchema,
+  startedAt: z.string().datetime(),
+  autoEndAt: z.string().datetime(),
+  endedAt: z.string().datetime().nullable(),
 });
 export type Shift = z.infer<typeof shiftSchema>;
 
+/**
+ * Backend v1.8 CallHistoryDto.
+ * Table label/floor/area are intentionally absent until backend supports
+ * employee-readable location context. Never pretend tableId is a label.
+ */
 export const callSchema = z.object({
-  id: z.string(),
-  branchId: z.string(),
-  type: z.enum(["waiter", "hookah"]),
-  createdAt: z.string(),
-  tableId: z.string().optional(),
-  tableNumber: z.string().optional(),
-  floor: z.string().optional(),
-  area: z.string().optional(),
+  id: z.string().min(1),
+  branchId: z.string().min(1),
+  tableId: z.string().min(1),
+  type: departmentSchema,
+  deliveryState: z.enum(["queued", "no_staff"]),
+  recipientsCount: z.number().int().nonnegative(),
+  ownerAlerted: z.boolean(),
+  createdAt: z.string().datetime(),
 });
 export type ServiceCall = z.infer<typeof callSchema>;
 
@@ -48,7 +59,11 @@ export const pageMetaSchema = z.object({
   hasMore: z.boolean(),
 });
 export type CallPage = { data: ServiceCall[]; meta: z.infer<typeof pageMetaSchema> };
-export type CallPageQuery = { cursor?: string | null; limit?: number };
+export type CallPageQuery = {
+  cursor?: string | null;
+  limit?: number;
+  type?: Department;
+};
 
 export interface EmployeeApi {
   setAccessToken(token: string | null): void;
@@ -60,6 +75,6 @@ export interface EmployeeApi {
   changePassword(input: ChangePasswordInput): Promise<void>;
   getCurrentShift(): Promise<Shift | null>;
   startShift(): Promise<Shift>;
-  endShift(): Promise<void>;
+  endShift(): Promise<Shift>;
   listCalls(query?: CallPageQuery): Promise<CallPage>;
 }
