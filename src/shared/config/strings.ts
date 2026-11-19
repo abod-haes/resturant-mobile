@@ -24,7 +24,7 @@ export const strings = {
   tableIdentifier: "معرّف الطاولة",
   locationUnavailable: "اسم الطاولة والطابق غير متاحين من الـ API حالياً.",
   callTitle: "سجل استدعاء",
-  autoEndLabel: "نهاية الدوام التلقائية:"
+  autoEndLabel: "نهاية الدوام التلقائية:",
   unknownLocation: "الموقع غير محدد",
   retry: "إعادة المحاولة",
   more: "عرض المزيد",
