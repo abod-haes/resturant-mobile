@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ApiError } from "./errors";
 import {
-  callSchema, employeeSchema, pageMetaSchema, sessionSchema, shiftSchema,
+  callSchema, employeeSchema, pageMetaSchema, pushDeviceSchema, sessionSchema, shiftSchema,
 } from "./types";
 import type { EmployeeApi, CallPageQuery, LoginInput, ChangePasswordInput } from "./types";
 
@@ -129,5 +129,17 @@ export const liveEmployeeApi: EmployeeApi = {
     if (!parsed.success)
       throw new ApiError("INVALID_RESPONSE", 0, "صيغة سجل الاستدعاءات لا تطابق العقد.");
     return parsed.data;
+  },
+  async listDevices() {
+    return unwrap(await authorized("GET", "/employee/devices"), z.array(pushDeviceSchema));
+  },
+  async registerDevice(input) {
+    return unwrap(await authorized("POST", "/employee/devices", input), pushDeviceSchema);
+  },
+  async unregisterDevice(id) {
+    if (!z.string().uuid().safeParse(id).success)
+      throw new ApiError("VALIDATION_ERROR", 400, "معرّف الجهاز غير صالح.");
+    unwrap(await authorized("DELETE", "/employee/devices/" + encodeURIComponent(id)),
+      z.object({ unregistered: z.literal(true) }));
   },
 };
