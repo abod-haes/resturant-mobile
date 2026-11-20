@@ -1,23 +1,30 @@
 import { z } from "zod";
 
+/** Both Expo Push (callId) and SSE (eventId) may invalidate local queries. */
 const eventSchema = z.object({
-  eventId: z.string().min(1),
+  eventId: z.string().min(1).optional(),
+  callId: z.string().min(1).optional(),
   eventType: z.enum(["call.created", "shift.updated"]),
   branchId: z.string().min(1),
-});
-export type EmployeeEventType = z.infer<typeof eventSchema>["eventType"];
+}).refine(value => Boolean(value.eventId || value.callId));
 
-/** Push payloads are untrusted; GET APIs remain the source of truth. */
+export type EmployeeEventType = "call.created" | "shift.updated";
+
+/**
+ * Never trust push/SSE payloads as persisted call data: they only trigger
+ * a refetch of authenticated branch-scoped APIs. Bound the de-duplication set.
+ */
 export function acceptEmployeeEvent(
   payload: unknown, branchId: string, seen: Set<string>,
 ): EmployeeEventType | null {
-  const event = eventSchema.safeParse(payload);
-  if (!event.success || event.data.branchId !== branchId) return null;
-  if (seen.has(event.data.eventId)) return null;
-  seen.add(event.data.eventId);
+  const parsed = eventSchema.safeParse(payload);
+  if (!parsed.success || parsed.data.branchId !== branchId) return null;
+  const key = parsed.data.eventType + ":" + (parsed.data.eventId ?? parsed.data.callId);
+  if (seen.has(key)) return null;
+  seen.add(key);
   if (seen.size > 100) {
-    const first = seen.values().next().value;
-    if (first) seen.delete(first);
+    const oldest = seen.values().next().value;
+    if (oldest) seen.delete(oldest);
   }
-  return event.data.eventType;
+  return parsed.data.eventType;
 }
