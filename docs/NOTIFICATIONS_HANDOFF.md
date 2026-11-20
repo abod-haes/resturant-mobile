@@ -1,17 +1,14 @@
-# Employee notification readiness (2026-11-19)
+# Employee push device integration (2026-11-20)
 
-## In mobile
-- Original separate waiter.wav/hookah.wav sounds bundled using Expo Notifications config plugin.
-- Android MAX-importance channels restaurant-waiter-v1 and restaurant-hookah-v1 with native OS-controlled sounds.
-- Foreground incoming/tapped event listener with Zod validation, cross-branch filtering, max 100 IDs dedupe, query reconciliation.
-- App resume triggers call/shift GET reconciliation (no background polling, no call acknowledgement).
-- User can request OS permission and generate local Expo push token; this is NOT registered with backend.
+## Implemented in the Expo client
+- Native Android channels `waiter_calls` and `hookah_calls` match the backend's Expo push payload channelId exactly. Custom bundled `waiter.wav` and `hookah.wav` are mapped by Expo config and require a new native build.
+- The opt-in **Activate notifications on this device** action requests OS permission, gets an EAS project-scoped Expo push token, and registers it as EMPLOYEE using `POST /api/v1/employee/devices`. It never shows, logs, or persists the raw push token.
+- Typed GET/POST/DELETE device APIs validate redacted server responses; in-memory mock uses deterministic idempotency, ownership and quota. Real devices require proper Expo EAS project ID, push credentials and an active backend push worker.
+- Foreground/tapped notifications use schema parsing and branch restriction; both the `callId`-based backend Expo payload and `eventId` SSE-shaped events can trigger authenticated GET calls/shift reconciliation. Deduplication is bounded.
+- Real native SSE stream is **not** connected; app resume and notification delivery trigger GET fallback. Push ticket acceptance never means the employee received or acknowledged a call.
 
-## BLOCKED: backend handoff
-Backend lists POST /employee/devices {expoPushToken,platform} and DELETE /employee/devices/:id as draft only.
-Before enabling registration, settle POST response {data:{id}} vs alternative, upsert policy, token rotation, logout device revocation, shift/account/branch scoping, stale token pruning, FCM/APNs.
-Push data must carry {eventId,eventType,branchId,payload}; eventType is call.created or shift.updated. Backend delivery must set Android channelId restaurant-waiter-v1 / restaurant-hookah-v1; on iOS sound waiter.wav / hookah.wav.
-Notification received is not proof of employee acknowledgement. No accept/complete actions in v1.
+## Backend / deployment prerequisites
+Deploy backend v1.9+, configure `PUSH_TOKEN_ENCRYPTION_KEY`, start the separate push worker with `PUSH_DISPATCH_ENABLED=true`, verify EAS FCM/APNs credentials, EAS project ID and app package/bundle identifiers. API and worker must use the same database/encryption key. Backend stores token encrypted and handles Expo tickets and receipts.
 
-## Manual verification needed
-Expo SDK 54 remote push does NOT work in Expo Go on Android; test a development build. A new native build is required for custom sound assets. Test Android/iOS in foreground/background, denied permissions, audio/silent settings, shift lifecycle and revoked devices. Not tested against production push service.
+## Remaining production tests
+Verify iOS and Android physical devices (foreground/background/terminated state), OS permission denied, mute/sound channels, token refresh, log out or account change registration lifecycle, worker receipts and network egress. Implement authenticated, resumable SSE when the React Native stream transport is validated; do not send bearer tokens in URLs.

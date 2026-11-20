@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.1.0",
+  "schemaVersion": "1.2.0",
   "plans": [
     {
       "id": "plan-basic",
@@ -294,9 +294,26 @@
       "createdAt": "2026-11-18T12:00:00Z",
       "deliveryState": "queued",
       "ownerAlerted": false
+    },
+    {
+      "id": "call-2",
+      "branchId": "branch-1",
+      "tableId": "table-1",
+      "type": "hookah",
+      "createdAt": "2026-11-18T12:30:00Z",
+      "deliveryState": "no_staff",
+      "ownerAlerted": true
     }
   ],
-  "ownerAlerts": [],
+  "ownerAlerts": [
+    {
+      "id": "alert-1",
+      "branchId": "branch-1",
+      "callId": "call-2",
+      "message": "استدعاء قسم الأراكيل لم يجد موظفاً بورديته. تم تسجيل تنبيه للمالك.",
+      "createdAt": "2026-11-18T12:30:00Z"
+    }
+  ],
   "auditLogs": [],
   "templates": [
     {

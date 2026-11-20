@@ -7,10 +7,10 @@ import { prepareNotifications, type PreparationResult } from "./runtime";
 
 type Status = "idle" | "loading" | PreparationResult | "error";
 const messages: Record<Exclude<Status, "loading">, string> = {
-  idle: "يمكنك منح صلاحية الإشعارات وتجهيز الجهاز. ربط الجهاز بالسيرفر قيد التطوير.",
+  idle: "فعّل الإشعارات لتسجيل جهازك لدى المطعم واستلام تنبيهات الاستدعاء أثناء المناوبة.",
   "permission-denied": "الإشعارات غير مسموحة. يمكن تعديل الإذن من إعدادات الجهاز.",
   "missing-project": "يجب إعداد Expo EAS Project ID قبل استخراج رمز الإشعارات.",
-  prepared: "تم تجهيز رمز الإشعارات محلياً. لم يتم ربطه بالسيرفر بعد.",
+  registered: "تم تسجيل الجهاز لدى المطعم. وصول الإشعار والصوت يعتمد على إعدادات النظام والاتصال.",
   error: "تعذر تجهيز الإشعارات. قد تحتاج Development Build وإعداد Push Credentials.",
 };
 
@@ -37,7 +37,7 @@ export function NotificationPanel() {
         </Text>
       </View>
       <AppButton
-        title="تجهيز الإشعارات"
+        title="تفعيل الإشعارات على هذا الجهاز"
         variant="secondary"
         onPress={() => void prepare()}
         loading={status === "loading"}

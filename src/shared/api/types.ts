@@ -65,6 +65,20 @@ export type CallPageQuery = {
   type?: Department;
 };
 
+/** Backend v1.9 device registry omits Expo tokens from every response. */
+export const pushDeviceSchema = z.object({
+  id: z.string().uuid(),
+  platform: z.enum(["ios", "android"]),
+  isActive: z.boolean(),
+  lastSeenAt: z.string().datetime(),
+  createdAt: z.string().datetime(),
+});
+export type PushDevice = z.infer<typeof pushDeviceSchema>;
+export type RegisterDeviceInput = {
+  expoPushToken: string;
+  platform: "ios" | "android";
+};
+
 export interface EmployeeApi {
   setAccessToken(token: string | null): void;
   setReauthenticate(handler: (() => Promise<void>) | null): void;
@@ -77,4 +91,7 @@ export interface EmployeeApi {
   startShift(): Promise<Shift>;
   endShift(): Promise<Shift>;
   listCalls(query?: CallPageQuery): Promise<CallPage>;
+  listDevices(): Promise<PushDevice[]>;
+  registerDevice(input: RegisterDeviceInput): Promise<PushDevice>;
+  unregisterDevice(id: string): Promise<void>;
 }
