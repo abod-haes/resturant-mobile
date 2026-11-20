@@ -2,10 +2,11 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 import { z } from "zod";
+import { employeeApi } from "../../shared/api";
 
 export const CALL_CHANNELS = {
-  waiter: "restaurant-waiter-v1",
-  hookah: "restaurant-hookah-v1",
+  waiter: "waiter_calls",
+  hookah: "hookah_calls",
 } as const;
 let channelsReady = false;
 
@@ -36,12 +37,9 @@ export async function configureNotificationChannels(): Promise<void> {
   channelsReady = true;
 }
 
-export type PreparationResult = "permission-denied" | "missing-project" | "prepared";
+export type PreparationResult = "permission-denied" | "missing-project" | "registered";
 
-/**
- * Creates a local Expo token, but DOES NOT claim backend registration or delivery.
- * Device registration is blocked on finalized POST/DELETE endpoint semantics.
- */
+/** Register the OS device against the authenticated employee; never log or return the token. */
 export async function prepareNotifications(): Promise<PreparationResult> {
   if (Platform.OS === "web") throw new Error("Native notifications not available on web.");
   await configureNotificationChannels();
@@ -51,7 +49,10 @@ export async function prepareNotifications(): Promise<PreparationResult> {
   const extras = z.object({ eas: z.object({ projectId: z.string().min(1) }) }).safeParse(Constants.expoConfig?.extra);
   const projectId = Constants.easConfig?.projectId ?? (extras.success ? extras.data.eas.projectId : undefined);
   if (!projectId) return "missing-project";
-  await Notifications.getExpoPushTokenAsync({ projectId });
-  return "prepared";
+  const expoPushToken = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+  const platform = Platform.OS === "ios" ? "ios" : Platform.OS === "android" ? "android" : null;
+  if (!platform) throw new Error("Native device registration is unsupported on this platform.");
+  await employeeApi.registerDevice({ expoPushToken, platform });
+  return "registered";
 }
 export { Notifications };
