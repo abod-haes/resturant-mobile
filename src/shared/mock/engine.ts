@@ -3,15 +3,21 @@ type Seed = typeof fixtures;
 type OwnerAlert = {
   id: string;
   branchId: string;
-  type: "NO_ACTIVE_STAFF";
+  callId: string;
+  type: "no_staff";
   createdAt: string;
-  read: boolean;
 };
 export type MockState = Omit<Seed, "shifts" | "ownerAlerts"> & {
   shifts: Array<Omit<Seed["shifts"][number], "endedAt"> & { endedAt: string | null }>;
   ownerAlerts: OwnerAlert[];
 };
-const seed: MockState = fixtures;
+const seed: MockState = {
+  ...fixtures,
+  ownerAlerts: fixtures.ownerAlerts.map(alert => ({
+    id: alert.id, branchId: alert.branchId, callId: alert.callId,
+    type: "no_staff" as const, createdAt: alert.createdAt,
+  })),
+};
 export type MockScenario = "happy_path"|"no_active_staff"|"subscription_expired"|"qr_revoked"|"table_disabled"|"call_cooldown"|"offline"|"empty_menu"|"server_error"|"slow_network";
 const clone=<T,>(value:T):T=>JSON.parse(JSON.stringify(value)) as T;
 const mockId=()=>`mock-${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
@@ -41,5 +47,5 @@ export const mockDb={
 export const mockCalls={
  createSession(qrToken:string){const table=state.tables.find(t=>t.qrToken===qrToken);if(!table||!table.qrEnabled||scenario==="qr_revoked")throw new MockApiError("QR_REVOKED",410);const token="mock-session-"+mockId();sessions.set(token,{tableId:table.id,lastActivity:Date.now(),confirmedFirstCall:false});return {sessionToken:token,expiresAt:Date.now()+14400000,confirmedFirstCall:false}},
  getSession(token:string){const session=sessions.get(token);if(!session||Date.now()-session.lastActivity>=14400000)throw new MockApiError("SESSION_EXPIRED",401);session.lastActivity=Date.now();return session},
- createCall(token:string,type:"waiter"|"hookah",idempotencyKey:string){if(idem.has(idempotencyKey))return clone(idem.get(idempotencyKey));const session=this.getSession(token);const table=state.tables.find(t=>t.id===session.tableId);if(!table||!table.qrEnabled||scenario==="qr_revoked")throw new MockApiError("QR_REVOKED",410);const branch=state.branches.find(b=>b.id===table.branchId);if(!branch)throw new MockApiError("NOT_FOUND",404);const subscription=state.subscriptions.find(s=>s.restaurantId===branch.restaurantId);if(!subscription||scenario==="subscription_expired"||Date.now()>new Date(subscription.endsAt).getTime()+subscription.graceDays*86400000)throw new MockApiError("SUBSCRIPTION_INACTIVE",403);if(!table.callsEnabled||scenario==="table_disabled")throw new MockApiError("TABLE_DISABLED",403);if(!branch.callSettings.enabled)throw new MockApiError("CALLS_DISABLED",403);if(type==="waiter"&&!branch.callSettings.waiterEnabled||type==="hookah"&&!branch.callSettings.hookahEnabled)throw new MockApiError("CALL_TYPE_DISABLED",403);const key=table.id+":"+type;const last=lastCall.get(key)??0;const remaining=10000-(Date.now()-last);if(remaining>0||scenario==="call_cooldown")throw new MockApiError("COOLDOWN_ACTIVE",429,Math.ceil(Math.max(remaining,1000)/1000));lastCall.set(key,Date.now());const onShift=new Set(state.shifts.filter(s=>!s.endedAt).map(s=>s.employeeId));const eligible=state.employees.filter(e=>e.branchId===branch.id&&!e.archivedAt&&onShift.has(e.id)&&(branch.callSettings.routingMode==="all"||e.department===type));const noStaff=eligible.length===0||scenario==="no_active_staff";const call={id:mockId(),branchId:branch.id,tableId:table.id,type,createdAt:new Date().toISOString(),deliveryState:noStaff?"no_staff":"queued",ownerAlerted:noStaff};state.calls.push(call as MockState["calls"][number]);if(noStaff)state.ownerAlerts.push({id:mockId(),branchId:branch.id,type:"NO_ACTIVE_STAFF",createdAt:call.createdAt,read:false});const result={id:call.id,createdAt:call.createdAt,deliveryState:call.deliveryState,ownerAlerted:call.ownerAlerted};idem.set(idempotencyKey,result);session.confirmedFirstCall=true;return clone(result)}
+ createCall(token:string,type:"waiter"|"hookah",idempotencyKey:string){if(idem.has(idempotencyKey))return clone(idem.get(idempotencyKey));const session=this.getSession(token);const table=state.tables.find(t=>t.id===session.tableId);if(!table||!table.qrEnabled||scenario==="qr_revoked")throw new MockApiError("QR_REVOKED",410);const branch=state.branches.find(b=>b.id===table.branchId);if(!branch)throw new MockApiError("NOT_FOUND",404);const subscription=state.subscriptions.find(s=>s.restaurantId===branch.restaurantId);if(!subscription||scenario==="subscription_expired"||Date.now()>new Date(subscription.endsAt).getTime()+subscription.graceDays*86400000)throw new MockApiError("SUBSCRIPTION_INACTIVE",403);if(!table.callsEnabled||scenario==="table_disabled")throw new MockApiError("TABLE_DISABLED",403);if(!branch.callSettings.enabled)throw new MockApiError("CALLS_DISABLED",403);if(type==="waiter"&&!branch.callSettings.waiterEnabled||type==="hookah"&&!branch.callSettings.hookahEnabled)throw new MockApiError("CALL_TYPE_DISABLED",403);const key=table.id+":"+type;const last=lastCall.get(key)??0;const remaining=10000-(Date.now()-last);if(remaining>0||scenario==="call_cooldown")throw new MockApiError("COOLDOWN_ACTIVE",429,Math.ceil(Math.max(remaining,1000)/1000));lastCall.set(key,Date.now());const onShift=new Set(state.shifts.filter(s=>!s.endedAt).map(s=>s.employeeId));const eligible=state.employees.filter(e=>e.branchId===branch.id&&!e.archivedAt&&onShift.has(e.id)&&(branch.callSettings.routingMode==="all"||e.department===type));const noStaff=eligible.length===0||scenario==="no_active_staff";const call={id:mockId(),branchId:branch.id,tableId:table.id,type,createdAt:new Date().toISOString(),deliveryState:noStaff?"no_staff":"queued",ownerAlerted:noStaff};state.calls.push(call as MockState["calls"][number]);if(noStaff)state.ownerAlerts.push({id:mockId(),branchId:branch.id,callId:call.id,type:"no_staff",createdAt:call.createdAt});const result={id:call.id,createdAt:call.createdAt,deliveryState:call.deliveryState,ownerAlerted:call.ownerAlerted};idem.set(idempotencyKey,result);session.confirmedFirstCall=true;return clone(result)}
 };
