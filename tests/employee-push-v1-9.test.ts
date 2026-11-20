@@ -22,10 +22,9 @@ describe("employee Expo push device registry, backend v1.9", () => {
   });
 
   it("sends authenticated registration, lists devices and securely unregisters", async () => {
-    const fetchMock = vi.fn(async (url: string) => {
-      if (url.includes("/employee/devices") && !url.endsWith("/" + id)) {
-        return json({ data: url.includes("/list") ? [device] : device }, 201);
-      }
+    const fetchMock = vi.fn(async (_url: string, init: RequestInit) => {
+      if (init.method === "GET") return json({ data: [device] });
+      if (init.method === "POST") return json({ data: device }, 201);
       return json({ data: { unregistered: true } });
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -36,6 +35,7 @@ describe("employee Expo push device registry, backend v1.9", () => {
     const body = JSON.parse(String(fetchMock.mock.calls[0][1]?.body)) as Record<string, unknown>;
     expect(body).toEqual(registration);
     expect(fetchMock.mock.calls[0][0]).toContain("/employee/devices");
+    await expect(live.listDevices()).resolves.toEqual([device]);
     await expect(live.unregisterDevice(id)).resolves.toBeUndefined();
     await expect(live.unregisterDevice("invalid")).rejects.toMatchObject({ status: 400 });
   });
