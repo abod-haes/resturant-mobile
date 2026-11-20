@@ -5,8 +5,9 @@ import { mockDb, mockDelay, mockControl } from "../mock/engine";
 interface MockDevice extends PushDevice { employeeId: string; token: string }
 const devices: MockDevice[] = [];
 let deviceCounter = 0;
-function visibleDevice({ employeeId: _employeeId, token: _token, ...device }: MockDevice): PushDevice {
-  return device;
+function visibleDevice(device: MockDevice): PushDevice {
+  return { id: device.id, platform: device.platform, isActive: device.isActive,
+    lastSeenAt: device.lastSeenAt, createdAt: device.createdAt };
 }
 let accessToken: string | null = null;
 const TOKEN_PREFIX = "mock-employee:";
