@@ -1,7 +1,13 @@
 import { ApiError } from "./errors";
-import type { EmployeeApi, Employee, CallPageQuery, ServiceCall, Shift, Department } from "./types";
+import type { EmployeeApi, Employee, CallPageQuery, ServiceCall, Shift, Department, PushDevice } from "./types";
 import { mockDb, mockDelay, mockControl } from "../mock/engine";
 
+interface MockDevice extends PushDevice { employeeId: string; token: string }
+const devices: MockDevice[] = [];
+let deviceCounter = 0;
+function visibleDevice({ employeeId: _employeeId, token: _token, ...device }: MockDevice): PushDevice {
+  return device;
+}
 let accessToken: string | null = null;
 const TOKEN_PREFIX = "mock-employee:";
 const REFRESH_PREFIX = "mock-refresh:";
@@ -165,5 +171,44 @@ export const mockEmployeeApi: EmployeeApi = {
         nextCursor: position + 1 + limit < rows.length ? page[page.length - 1]?.id ?? null : null,
       },
     };
+  },
+  async listDevices() {
+    await mockDelay();
+    const employee = currentEmployee();
+    return devices.filter(device => device.employeeId === employee.id && device.isActive)
+      .map(visibleDevice);
+  },
+  async registerDevice(input) {
+    await mockDelay();
+    const employee = currentEmployee();
+    if (!/^(?:Expo|Exponent)PushToken\\[[A-Za-z0-9_-]{10,256}\\]$/.test(input.expoPushToken) ||
+      !["ios", "android"].includes(input.platform)) {
+      throw new ApiError("VALIDATION_ERROR", 400, "رمز الجهاز أو نظامه غير صالح.");
+    }
+    const owned = devices.filter(device => device.employeeId === employee.id && device.isActive);
+    const existing = owned.find(device => device.token === input.expoPushToken);
+    if (existing) return visibleDevice(existing);
+    if (owned.length >= 5) throw new ApiError("DEVICE_LIMIT_REACHED", 409, "تجاوزت عدد الأجهزة المسموح.");
+    for (const device of devices) {
+      if (device.token === input.expoPushToken && device.employeeId !== employee.id && device.isActive) {
+        throw new ApiError("DEVICE_ALREADY_REGISTERED", 409, "الجهاز مرتبط بحساب آخر.");
+      }
+    }
+    deviceCounter += 1;
+    const at = new Date().toISOString();
+    const device: MockDevice = {
+      id: "00000000-0000-4000-8000-" + String(deviceCounter).padStart(12, "0"),
+      employeeId: employee.id, token: input.expoPushToken, platform: input.platform,
+      isActive: true, lastSeenAt: at, createdAt: at,
+    };
+    devices.push(device);
+    return visibleDevice(device);
+  },
+  async unregisterDevice(id) {
+    await mockDelay();
+    const employee = currentEmployee();
+    const device = devices.find(item => item.id === id && item.employeeId === employee.id && item.isActive);
+    if (!device) throw new ApiError("NOT_FOUND", 404, "الجهاز غير موجود.");
+    device.isActive = false;
   },
 };
