@@ -182,7 +182,7 @@ export const mockEmployeeApi: EmployeeApi = {
   async registerDevice(input) {
     await mockDelay();
     const employee = currentEmployee();
-    if (!/^(?:Expo|Exponent)PushToken\\[[A-Za-z0-9_-]{10,256}\\]$/.test(input.expoPushToken) ||
+    if (!/^(?:Expo|Exponent)PushToken\[[A-Za-z0-9_-]{10,256}\]$/.test(input.expoPushToken) ||
       !["ios", "android"].includes(input.platform)) {
       throw new ApiError("VALIDATION_ERROR", 400, "رمز الجهاز أو نظامه غير صالح.");
     }
