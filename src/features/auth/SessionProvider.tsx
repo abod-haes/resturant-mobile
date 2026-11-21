@@ -81,11 +81,21 @@ export function SessionProvider({ children }: PropsWithChildren) {
     }
   }, [renew]);
 
+  const requirePasswordChange = useCallback(() => {
+    setSession((current) => current.status === "authenticated" && current.user
+      ? { ...current, user: { ...current.user, mustChangePassword: true } }
+      : current);
+  }, []);
+
   useEffect(() => {
     employeeApi.setReauthenticate(renew);
+    employeeApi.setPasswordChangeRequired(requirePasswordChange);
     void restoreSession();
-    return () => employeeApi.setReauthenticate(null);
-  }, [renew, restoreSession]);
+    return () => {
+      employeeApi.setReauthenticate(null);
+      employeeApi.setPasswordChangeRequired(null);
+    };
+  }, [renew, restoreSession, requirePasswordChange]);
 
   const signIn = useCallback(async (input: LoginInput) => {
     const result = await employeeApi.login(input);

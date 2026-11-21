@@ -12,6 +12,7 @@ function unwrap<T>(payload: unknown, schema: z.ZodType<T>): T {
 export const liveEmployeeApi: EmployeeApi = {
   setAccessToken: (token) => httpClient.setAccessToken(token),
   setReauthenticate: (handler) => httpClient.setReauthenticate(handler),
+  setPasswordChangeRequired: (handler) => httpClient.setPasswordChangeRequired(handler),
   async login(input: LoginInput) {
     return unwrap(await httpClient.publicRequest("POST", "/auth/login", {
       body: { ...input, client: "mobile" },
