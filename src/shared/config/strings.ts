@@ -43,4 +43,10 @@ export const strings = {
   passwordLength: "يجب إدخال كلمة المرور الحالية واختيار كلمة مرور جديدة من 12 حرفاً على الأقل.",
   passwordMismatch: "كلمتا المرور الجديدتان غير متطابقتين.",
   passwordChanged: "تم تغيير كلمة المرور. سجّل الدخول باستخدام الكلمة الجديدة.",
+  notificationTitle: "إشعارات الاستدعاءات",
+  notificationDescription: "فعّل الإشعارات لتسجيل جهازك لدى المطعم واستلام تنبيهات الاستدعاء أثناء المناوبة.",
+  notificationPermissionDenied: "الإشعارات غير مسموحة. يمكن تعديل الإذن من إعدادات الجهاز.",
+  notificationMissingProject: "يجب إعداد Expo EAS Project ID قبل استخراج رمز الإشعارات.",
+  notificationRegistered: "تم تسجيل الجهاز لدى المطعم. وصول الإشعار والصوت يعتمد على إعدادات النظام والاتصال.",
+  enableNotifications: "تفعيل الإشعارات على هذا الجهاز",
 } as const;

@@ -29,6 +29,7 @@ const knownErrors: Record<string, FeedbackKey> = {
   DEVICE_LIMIT_REACHED: "deviceLimit",
   DEVICE_ALREADY_REGISTERED: "deviceOther",
   PUSH_NOT_CONFIGURED: "pushUnavailable",
+  PUSH_SETUP_FAILED: "pushSetup",
   CALLS_DISABLED: "callsDisabled",
   CALL_TYPE_DISABLED: "callsDisabled",
 };
@@ -153,6 +154,7 @@ export function getErrorPresentation(
     key = "server";
     action = "retry";
   }
+  if (value.code === "PUSH_SETUP_FAILED") action = "retry";
   if (context === "devices" && value.code === "DEVICE_LIMIT_REACHED") action = "none";
   if (context === "devices" && value.code === "DEVICE_ALREADY_REGISTERED") action = "none";
 
