@@ -95,6 +95,19 @@ describe("HTTP client phase 1", () => {
     expect(failure).toMatchObject({ code: "NETWORK_ERROR", retryable: true });
     expect(describeApiError(failure)).not.toContain("TypeError");
   });
+  it("triggers mandatory password routing only on the correct 403 code", async () => {
+    let result = response({ error: { code: "PASSWORD_CHANGE_REQUIRED", message: "must change" }, requestId: "change" }, 403);
+    const client = new HttpClient(base, async () => result);
+    client.setAccessToken("access");
+    const notify = vi.fn();
+    client.setPasswordChangeRequired(notify);
+    await expect(client.authorized("GET", "/employee/shifts/current"))
+      .rejects.toMatchObject({ code: "PASSWORD_CHANGE_REQUIRED", status: 403 });
+    expect(notify).toHaveBeenCalledTimes(1);
+    result = response({ error: { code: "FORBIDDEN", message: "not allowed" }, requestId: "other" }, 403);
+    await expect(client.authorized("GET", "/employee/shifts/current")).rejects.toMatchObject({ status: 403 });
+    expect(notify).toHaveBeenCalledTimes(1);
+  });
   it("returns TIMEOUT on an aborted stalled fetch and retries safe reads only", async () => {
     const client = new HttpClient(base, async (_url, init) => new Promise<Response>((_resolve, reject) => {
       init.signal?.addEventListener("abort", () => reject(new Error("aborted")));
