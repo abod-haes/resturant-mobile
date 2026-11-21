@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { AppButton } from "./AppButton";
-import { getErrorPresentation, normalizeApiError } from "../api/error-presentation";
+import { getErrorPresentation } from "../api/error-presentation";
+import { useRetryCooldown } from "../api/use-retry-cooldown";
 import type { FeedbackContext, ErrorAction } from "../api/error-presentation";
 import type { AppLocale } from "../i18n/feedback";
 import { feedbackText } from "../i18n/feedback";
@@ -24,23 +24,12 @@ export function AppErrorNotice({
   loading = false, variant = "inline", showRequestId = true,
 }: Props) {
   const { colors } = useAppTheme();
-  const deadline = useMemo(() => {
-    if (error === null || error === undefined) return null;
-    const seconds = normalizeApiError(error).retryAfterSeconds;
-    return seconds !== undefined ? Date.now() + seconds * 1000 : null;
-  }, [error]);
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    if (deadline === null) return;
-    setNow(Date.now());
-    const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
-  }, [deadline]);
+  const remaining = useRetryCooldown(error);
 
   if (error === null || error === undefined) return null;
   const remaining = deadline === null ? undefined : Math.max(0, Math.ceil((deadline - now) / 1000));
   const presentation = getErrorPresentation(error, { context, locale, remainingSeconds: remaining });
-  const allowed = !loading && (remaining === undefined || remaining === 0);
+  const allowed = !loading && remaining === 0;
   const canAct = presentation.action === "retry" ? Boolean(onRetry && allowed) :
     Boolean(onAction && presentation.action !== "none" && allowed);
   const callback = presentation.action === "retry"
