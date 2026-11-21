@@ -14,13 +14,15 @@ export default function Home() {
     return <Redirect href="/change-password" />;
   if (status === "authenticated") return <EmployeeHomeScreen footer={<NotificationPanel employeeId={user?.id ?? null} />} />;
   return (
-    <AppScreen><View style={styles.center}>
-      <Feedback
-        message={status === "loading" ? strings.loading : strings.sessionRestoreError}
-        loading={status === "loading"}
-        retry={status === "restore-error" ? () => void restoreSession() : undefined}
-      />
-    </View></AppScreen>
+    <AppScreen>
+      <View style={styles.center}>
+        <Feedback
+          message={status === "loading" ? strings.loading : strings.sessionRestoreError}
+          loading={status === "loading"}
+          retry={status === "restore-error" ? () => void restoreSession() : undefined}
+        />
+      </View>
+    </AppScreen>
   );
 }
 const styles = StyleSheet.create({ center: { flex: 1, justifyContent: "center" } });
