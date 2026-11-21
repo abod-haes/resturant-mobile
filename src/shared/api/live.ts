@@ -1,145 +1,71 @@
 import { z } from "zod";
 import { ApiError } from "./errors";
-import {
-  callSchema, employeeSchema, pageMetaSchema, pushDeviceSchema, sessionSchema, shiftSchema,
-} from "./types";
+import { httpClient } from "./http/client";
+import { callSchema, employeeSchema, pageMetaSchema, pushDeviceSchema, sessionSchema, shiftSchema } from "./types";
 import type { EmployeeApi, CallPageQuery, LoginInput, ChangePasswordInput } from "./types";
-
-const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/+$/, "");
-const TIMEOUT_MS = 15000;
-let token: string | null = null;
-let reauthenticate: (() => Promise<void>) | null = null;
-let refreshInFlight: Promise<void> | null = null;
-
-function refreshOnce(): Promise<void> {
-  if (!reauthenticate) throw new ApiError("UNAUTHORIZED", 401, "انتهت الجلسة.");
-  if (!refreshInFlight) {
-    const callback = reauthenticate;
-    refreshInFlight = Promise.resolve().then(() => callback()).finally(() => {
-      refreshInFlight = null;
-    });
-  }
-  return refreshInFlight;
-}
-
-async function request(method: string, path: string, body?: unknown): Promise<unknown> {
-  if (!BASE_URL || !/^https?:\/\//i.test(BASE_URL))
-    throw new ApiError("CONFIG_ERROR", 0, "لم يتم إعداد عنوان API بشكل صحيح.");
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  try {
-    const response = await fetch(BASE_URL + path, {
-      method,
-      signal: controller.signal,
-      headers: {
-        Accept: "application/json",
-        ...(body === undefined ? {} : { "Content-Type": "application/json" }),
-        ...(token ? { Authorization: "Bearer " + token } : {}),
-      },
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    });
-    const raw = await response.text();
-    let parsed: unknown = null;
-    if (raw) {
-      try {
-        parsed = JSON.parse(raw) as unknown;
-      } catch {
-        throw new ApiError("INVALID_RESPONSE", response.status, "استجابة غير صالحة من الخادم.");
-      }
-    }
-
-    if (!response.ok) {
-      const error = z.object({
-        error: z.object({ code: z.string(), message: z.string() }),
-        requestId: z.string().optional(),
-      }).safeParse(parsed);
-      if (error.success)
-        throw new ApiError(error.data.error.code, response.status, error.data.error.message, error.data.requestId);
-      throw new ApiError("HTTP_ERROR", response.status, "فشل الطلب.");
-    }
-    return parsed;
-  } catch (error) {
-    if (error instanceof ApiError) throw error;
-    if (error instanceof Error && error.name === "AbortError")
-      throw new ApiError("TIMEOUT", 0, "انتهت مهلة الاتصال.");
-    throw new ApiError("NETWORK_ERROR", 0, "تعذر الاتصال بالخادم.");
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-async function authorized(method: string, path: string, body?: unknown): Promise<unknown> {
-  if (!token) throw new ApiError("UNAUTHORIZED", 401, "الجلسة غير صالحة.");
-  try {
-    return await request(method, path, body);
-  } catch (error) {
-    if (!(error instanceof ApiError) || error.status !== 401 || !reauthenticate) throw error;
-    await refreshOnce();
-    if (!token) throw new ApiError("UNAUTHORIZED", 401, "انتهت الجلسة.");
-    return request(method, path, body);
-  }
-}
 
 function unwrap<T>(payload: unknown, schema: z.ZodType<T>): T {
   const result = z.object({ data: schema }).safeParse(payload);
-  if (!result.success)
-    throw new ApiError("INVALID_RESPONSE", 0, "صيغة استجابة API لا تطابق العقد.");
+  if (!result.success) throw new ApiError("INVALID_RESPONSE", 0, "Unexpected API envelope");
   return result.data.data;
 }
-
 export const liveEmployeeApi: EmployeeApi = {
-  setAccessToken(next) { token = next; },
-  setReauthenticate(handler) { reauthenticate = handler; },
+  setAccessToken: (token) => httpClient.setAccessToken(token),
+  setReauthenticate: (handler) => httpClient.setReauthenticate(handler),
   async login(input: LoginInput) {
-    return unwrap(await request("POST", "/auth/login", { ...input, client: "mobile" }), sessionSchema);
+    return unwrap(await httpClient.publicRequest("POST", "/auth/login", {
+      body: { ...input, client: "mobile" },
+    }), sessionSchema);
   },
   async refresh(refreshToken: string) {
-    return unwrap(await request("POST", "/auth/refresh", { refreshToken }), sessionSchema);
+    return unwrap(await httpClient.publicRequest("POST", "/auth/refresh", {
+      body: { refreshToken },
+    }), sessionSchema);
   },
   async getMe() {
-    return unwrap(await authorized("GET", "/auth/me"), employeeSchema);
+    return unwrap(await httpClient.authorized("GET", "/auth/me"), employeeSchema);
   },
   async logout(refreshToken: string) {
-    unwrap(await request("POST", "/auth/logout", { refreshToken }), z.object({ loggedOut: z.boolean() }));
-    token = null;
+    unwrap(await httpClient.publicRequest("POST", "/auth/logout", {
+      body: { refreshToken },
+    }), z.object({ loggedOut: z.boolean() }));
+    httpClient.setAccessToken(null);
   },
   async changePassword(input: ChangePasswordInput) {
-    unwrap(await authorized("POST", "/auth/change-password", input), z.object({ changed: z.literal(true) }));
-    token = null;
+    unwrap(await httpClient.authorized("POST", "/auth/change-password", {
+      body: input,
+    }), z.object({ changed: z.literal(true) }));
+    httpClient.setAccessToken(null);
   },
-  async getCurrentShift() {
-    return unwrap(await authorized("GET", "/employee/shifts/current"), shiftSchema.nullable());
+  async getCurrentShift(signal?: AbortSignal) {
+    return unwrap(await httpClient.authorized("GET", "/employee/shifts/current", { signal }), shiftSchema.nullable());
   },
   async startShift() {
-    return unwrap(await authorized("POST", "/employee/shifts/start"), shiftSchema);
+    return unwrap(await httpClient.authorized("POST", "/employee/shifts/start"), shiftSchema);
   },
   async endShift() {
-    return unwrap(await authorized("POST", "/employee/shifts/end"), shiftSchema);
+    return unwrap(await httpClient.authorized("POST", "/employee/shifts/end"), shiftSchema);
   },
-  async listCalls(query: CallPageQuery = {}) {
-    const params: string[] = [];
-    if (query.cursor) params.push("cursor=" + encodeURIComponent(query.cursor));
-    if (query.type) params.push("type=" + encodeURIComponent(query.type));
-    params.push("limit=" + String(Math.min(100, Math.max(1, query.limit ?? 20))));
-    const parsed = z.object({
-      data: z.array(callSchema),
-      meta: pageMetaSchema,
-    }).safeParse(await authorized("GET", "/employee/calls?" + params.join("&")));
-    if (!parsed.success)
-      throw new ApiError("INVALID_RESPONSE", 0, "صيغة سجل الاستدعاءات لا تطابق العقد.");
-    return parsed.data;
+  async listCalls(query: CallPageQuery = {}, signal?: AbortSignal) {
+    const params = new URLSearchParams();
+    if (query.cursor) params.set("cursor", query.cursor);
+    if (query.type) params.set("type", query.type);
+    params.set("limit", String(Math.min(100, Math.max(1, query.limit ?? 20))));
+    const result = z.object({ data: z.array(callSchema), meta: pageMetaSchema })
+      .safeParse(await httpClient.authorized("GET", "/employee/calls?" + params.toString(), { signal }));
+    if (!result.success) throw new ApiError("INVALID_RESPONSE", 0, "Unexpected call history");
+    return result.data;
   },
   async listDevices() {
-    return unwrap(await authorized("GET", "/employee/devices"), z.array(pushDeviceSchema));
+    return unwrap(await httpClient.authorized("GET", "/employee/devices"), z.array(pushDeviceSchema));
   },
   async registerDevice(input) {
-    return unwrap(await authorized("POST", "/employee/devices", input), pushDeviceSchema);
+    return unwrap(await httpClient.authorized("POST", "/employee/devices", { body: input }), pushDeviceSchema);
   },
   async unregisterDevice(id) {
     if (!z.string().uuid().safeParse(id).success)
-      throw new ApiError("VALIDATION_ERROR", 400, "معرّف الجهاز غير صالح.");
-    unwrap(await authorized("DELETE", "/employee/devices/" + encodeURIComponent(id)),
+      throw new ApiError("VALIDATION_ERROR", 400, "Invalid device ID");
+    unwrap(await httpClient.authorized("DELETE", "/employee/devices/" + encodeURIComponent(id)),
       z.object({ unregistered: z.literal(true) }));
   },
 };

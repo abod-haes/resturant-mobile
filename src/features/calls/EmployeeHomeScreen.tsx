@@ -4,6 +4,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { RefreshControl, ScrollView, Text, View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { employeeApi, describeApiError, isMockMode } from "../../shared/api";
+import { employeeKeys } from "../../shared/api/query-keys";
 import { strings } from "../../shared/config/strings";
 import { radius, spacing, useAppTheme } from "../../shared/config/theme";
 import { AppButton } from "../../shared/ui/AppButton";
@@ -19,13 +20,13 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   const [notice, setNotice] = useState<string | null>(null);
 
   const shift = useQuery({
-    queryKey: ["employee", user?.id, "shift"],
-    queryFn: () => employeeApi.getCurrentShift(),
+    queryKey: employeeKeys.shift(user?.id),
+    queryFn: ({ signal }) => employeeApi.getCurrentShift(signal),
   });
   const calls = useInfiniteQuery({
-    queryKey: ["employee", user?.id, "calls"],
+    queryKey: employeeKeys.calls(user?.id),
     initialPageParam: null as string | null,
-    queryFn: ({ pageParam }) => employeeApi.listCalls({ cursor: pageParam, limit: 20 }),
+    queryFn: ({ pageParam, signal }) => employeeApi.listCalls({ cursor: pageParam, limit: 20 }, signal),
     getNextPageParam: (page) => page.meta.hasMore ? page.meta.nextCursor ?? undefined : undefined,
   });
   const mutation = useMutation({
@@ -36,8 +37,8 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
     onSuccess: async () => {
       setNotice(null);
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["employee", user?.id, "shift"] }),
-        queryClient.invalidateQueries({ queryKey: ["employee", user?.id, "calls"] }),
+        queryClient.invalidateQueries({ queryKey: employeeKeys.shift(user?.id) }),
+        queryClient.invalidateQueries({ queryKey: employeeKeys.callsRoot(user?.id) }),
       ]);
     },
     onError: (error: unknown) => setNotice(describeApiError(error)),

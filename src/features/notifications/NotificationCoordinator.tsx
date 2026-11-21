@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { AppState } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
+import { employeeKeys } from "../../shared/api/query-keys";
 import { acceptEmployeeEvent } from "./event-routing";
 import { configureNotificationChannels, Notifications } from "./runtime";
 
@@ -21,10 +22,10 @@ export function NotificationCoordinator({
     });
 
     function refreshCalls() {
-      void client.invalidateQueries({ queryKey: ["employee", activeEmployeeId, "calls"] });
+      void client.invalidateQueries({ queryKey: employeeKeys.callsRoot(activeEmployeeId) });
     }
     function refreshShift() {
-      void client.invalidateQueries({ queryKey: ["employee", activeEmployeeId, "shift"] });
+      void client.invalidateQueries({ queryKey: employeeKeys.shift(activeEmployeeId) });
     }
     function reconcile() {
       refreshCalls();
