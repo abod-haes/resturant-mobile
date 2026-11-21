@@ -3,12 +3,15 @@ import type { ReactNode } from "react";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshControl, ScrollView, Text, View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { employeeApi, describeApiError, isMockMode } from "../../shared/api";
+import { employeeApi, isMockMode, ApiError } from "../../shared/api";
 import { employeeKeys } from "../../shared/api/query-keys";
 import { strings } from "../../shared/config/strings";
 import { radius, spacing, useAppTheme } from "../../shared/config/theme";
 import { AppButton } from "../../shared/ui/AppButton";
 import { Feedback } from "../../shared/ui/Feedback";
+import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
+import { useFeedback } from "../../shared/ui/AppToast";
+import { feedbackText } from "../../shared/i18n/feedback";
 import { useSession } from "../auth";
 import { ShiftPanel } from "../shifts";
 import { CallCard } from "./CallCard";
@@ -17,7 +20,9 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   const { user, signOut } = useSession();
   const { colors } = useAppTheme();
   const queryClient = useQueryClient();
-  const [notice, setNotice] = useState<string | null>(null);
+  const { showToast } = useFeedback();
+  const [shiftError, setShiftError] = useState<unknown>(null);
+  const [logoutError, setLogoutError] = useState<unknown>(null);
 
   const shift = useQuery({
     queryKey: employeeKeys.shift(user?.id),
@@ -30,18 +35,33 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
     getNextPageParam: (page) => page.meta.hasMore ? page.meta.nextCursor ?? undefined : undefined,
   });
   const mutation = useMutation({
-    mutationFn: async () => {
-      if (shift.data) await employeeApi.endShift();
-      else await employeeApi.startShift();
+    mutationFn: async (): Promise<"started" | "ended"> => {
+      if (shift.data) {
+        await employeeApi.endShift();
+        return "ended";
+      }
+      await employeeApi.startShift();
+      return "started";
     },
-    onSuccess: async () => {
-      setNotice(null);
+    onSuccess: async (action) => {
+      setShiftError(null);
+      showToast({
+        message: feedbackText(action === "started" ? "shiftStarted" : "shiftEnded"),
+        key: action === "started" ? "shift-started" : "shift-ended",
+      });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: employeeKeys.shift(user?.id) }),
         queryClient.invalidateQueries({ queryKey: employeeKeys.callsRoot(user?.id) }),
       ]);
     },
-    onError: (error: unknown) => setNotice(describeApiError(error)),
+    onError: (error: unknown) => {
+      setShiftError(error);
+      if (error instanceof ApiError &&
+        (error.code === "SHIFT_ALREADY_ACTIVE" || error.code === "SHIFT_NOT_ACTIVE")) {
+        // Never assume a conflict means success. Reconcile actual server shift.
+        void queryClient.invalidateQueries({ queryKey: employeeKeys.shift(user?.id) });
+      }
+    },
   });
 
   const allCalls = calls.data?.pages.flatMap((page) => page.data) ?? [];
@@ -50,11 +70,11 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
     void Promise.all([shift.refetch(), calls.refetch()]);
   }
   async function logout() {
-    setNotice(null);
+    setLogoutError(null);
     try {
       await signOut();
     } catch (error) {
-      setNotice(describeApiError(error));
+      setLogoutError(error);
     }
   }
 
@@ -79,12 +99,13 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
           <AppButton title={strings.logout} onPress={() => void logout()} variant="secondary" />
         </View>
 
+        <AppErrorNotice error={logoutError} />
         <ShiftPanel
           shift={shift.data}
           loading={shift.isLoading}
           changing={mutation.isPending}
-          error={notice ?? (shift.isError ? describeApiError(shift.error) : null)}
-          onToggle={() => mutation.mutate()}
+          error={shiftError ?? (shift.isError ? shift.error : null)}
+          onToggle={() => { setShiftError(null); mutation.mutate(); }}
           onRetry={() => void shift.refetch()}
         />
 
@@ -100,7 +121,7 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
         {calls.isPending ? (
           <Feedback message={strings.loading} loading />
         ) : calls.isError && allCalls.length === 0 ? (
-          <Feedback message={describeApiError(calls.error)} retry={() => void calls.refetch()} />
+          <AppErrorNotice error={calls.error} context="calls" variant="screen" onRetry={() => void calls.refetch()} />
         ) : allCalls.length === 0 ? (
           <View style={[styles.empty, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[styles.emptyTitle, { color: colors.text }]}>{strings.emptyCalls}</Text>
@@ -110,7 +131,10 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
           <>
             {allCalls.map((call) => <CallCard key={call.id} call={call} />)}
             {calls.isFetchNextPageError && (
-              <Feedback message={describeApiError(calls.error)} retry={() => void calls.fetchNextPage()} />
+              <AppErrorNotice error={calls.error} context="calls" onRetry={() => void calls.fetchNextPage()} />
+            )}
+            {calls.isError && !calls.isFetchNextPageError && (
+              <AppErrorNotice error={calls.error} context="calls" onRetry={() => void calls.refetch()} />
             )}
             {calls.hasNextPage && (
               <AppButton
@@ -130,7 +154,7 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { padding: spacing.xl, paddingBottom: spacing.huge, gap: spacing.lg },
-  header: { flexDirection: "row-reverse", justifyContent: "space-between", alignItems: "flex-start", gap: spacing.md, paddingTop: spacing.lg, paddingBottom: spacing.md },
+  header: { flexDirection: "row-reverse", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: spacing.md, paddingTop: spacing.lg, paddingBottom: spacing.md },
   profile: { flex: 1, alignItems: "flex-end", gap: spacing.xs },
   eyebrow: { fontSize: 12, fontWeight: "800" },
   title: { fontSize: 24, fontWeight: "800", textAlign: "right" },

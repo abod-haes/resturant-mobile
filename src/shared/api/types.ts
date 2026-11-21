@@ -82,6 +82,7 @@ export type RegisterDeviceInput = {
 export interface EmployeeApi {
   setAccessToken(token: string | null): void;
   setReauthenticate(handler: (() => Promise<void>) | null): void;
+  setPasswordChangeRequired(handler: (() => void) | null): void;
   login(input: LoginInput): Promise<LoginSession>;
   refresh(refreshToken: string): Promise<LoginSession>;
   getMe(): Promise<Employee>;

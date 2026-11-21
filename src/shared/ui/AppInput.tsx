@@ -1,20 +1,23 @@
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import type { TextInputProps } from "react-native";
 import { radius, spacing, useAppTheme } from "../config/theme";
+import { FieldError } from "./FieldError";
 
-type Props = TextInputProps & { label: string };
-export function AppInput({ label, style, ...inputProps }: Props) {
+type Props = TextInputProps & { label: string; error?: string | null };
+export function AppInput({ label, error, style, ...inputProps }: Props) {
   const { colors } = useAppTheme();
   return (
     <View style={styles.field}>
       <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
       <TextInput
         accessibilityLabel={label}
+        accessibilityHint={error || inputProps.accessibilityHint}
         placeholderTextColor={colors.muted}
         selectionColor={colors.primary}
-        style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }, style]}
+        style={[styles.input, { backgroundColor: colors.input, borderColor: error ? colors.danger : colors.border, color: colors.text }, style]}
         {...inputProps}
       />
+      <FieldError message={error} />
     </View>
   );
 }

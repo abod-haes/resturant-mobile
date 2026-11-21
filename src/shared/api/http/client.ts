@@ -24,6 +24,7 @@ export class HttpClient {
   private accessToken: string | null = null;
   private reauthenticate: (() => Promise<void>) | null = null;
   private refreshing: Promise<void> | null = null;
+  private onPasswordChangeRequired: (() => void) | null = null;
 
   constructor(
     private readonly baseUrl: string | undefined = process.env.EXPO_PUBLIC_API_BASE_URL,
@@ -31,6 +32,9 @@ export class HttpClient {
   ) {}
   setAccessToken(value: string | null): void { this.accessToken = value; }
   setReauthenticate(callback: (() => Promise<void>) | null): void { this.reauthenticate = callback; }
+  setPasswordChangeRequired(callback: (() => void) | null): void {
+    this.onPasswordChangeRequired = callback;
+  }
 
   private refreshOnce(): Promise<void> {
     if (!this.reauthenticate) throw new ApiError("UNAUTHORIZED", 401, "Missing session");
@@ -52,6 +56,10 @@ export class HttpClient {
     if (!original) throw new ApiError("UNAUTHORIZED", 401, "Missing session");
     try { return await this.send(method, path, original, options); }
     catch (error) {
+      if (error instanceof ApiError && error.status === 403 && error.code === "PASSWORD_CHANGE_REQUIRED") {
+        this.onPasswordChangeRequired?.();
+        throw error;
+      }
       if (!(error instanceof ApiError) || error.status !== 401 || options.signal?.aborted) throw error;
       // Delayed 401 arriving after another refresh must NOT rotate twice.
       if (this.accessToken === original) await this.refreshOnce();

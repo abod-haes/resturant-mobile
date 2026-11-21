@@ -1,0 +1,69 @@
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import type { PropsWithChildren } from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { radius, spacing, useAppTheme } from "../config/theme";
+import { feedbackText } from "../i18n/feedback";
+
+type Toast = { message: string; kind: "success" | "error"; key: string; id: number };
+type FeedbackContextValue = { showToast(input: { message: string; kind?: Toast["kind"]; key?: string }): void };
+const FeedbackContext = createContext<FeedbackContextValue | null>(null);
+
+/** One transient toast at a time; repeated identical notices are deduplicated. */
+export function FeedbackProvider({ children }: PropsWithChildren) {
+  const { colors } = useAppTheme();
+  const insets = useSafeAreaInsets();
+  const [toast, setToast] = useState<Toast | null>(null);
+  const serial = useRef(0);
+  const last = useRef<{ key: string; at: number } | null>(null);
+
+  const showToast = useCallback(({ message, kind = "success", key }: {
+    message: string; kind?: Toast["kind"]; key?: string;
+  }) => {
+    const identity = key ?? kind + ":" + message;
+    const now = Date.now();
+    if (last.current?.key === identity && now - last.current.at < 1800) return;
+    last.current = { key: identity, at: now };
+    setToast({ message, kind, key: identity, id: ++serial.current });
+  }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = setTimeout(() => setToast((current) => current?.id === toast.id ? null : current), 3200);
+    return () => clearTimeout(timeout);
+  }, [toast]);
+  const value = useMemo(() => ({ showToast }), [showToast]);
+  return (
+    <FeedbackContext.Provider value={value}>
+      {children}
+      {toast && (
+        <View pointerEvents="box-none" style={[styles.overlay, { bottom: Math.max(spacing.lg, insets.bottom + spacing.md) }]}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={feedbackText("dismiss")}
+            accessibilityHint={toast.message}
+            onPress={() => setToast(null)}
+            style={[styles.toast, { backgroundColor: colors.surface, borderColor: toast.kind === "error" ? colors.danger : colors.success }]}
+          >
+            <Text accessibilityLiveRegion="polite" style={[styles.message, { color: colors.text }]}>{toast.message}</Text>
+          </Pressable>
+        </View>
+      )}
+    </FeedbackContext.Provider>
+  );
+}
+
+export function useFeedback(): FeedbackContextValue {
+  const context = useContext(FeedbackContext);
+  if (!context) throw new Error("useFeedback must be used inside FeedbackProvider");
+  return context;
+}
+const styles = StyleSheet.create({
+  overlay: { position: "absolute", left: spacing.md, right: spacing.md, alignItems: "center", zIndex: 10 },
+  toast: {
+    minHeight: 48, width: "100%", maxWidth: 500, borderRadius: radius.md,
+    borderWidth: 1, paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
+    justifyContent: "center",
+  },
+  message: { fontSize: 14, lineHeight: 22, textAlign: "center" },
+});
