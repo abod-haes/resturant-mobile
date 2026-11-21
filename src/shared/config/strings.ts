@@ -25,6 +25,8 @@ export const strings = {
   emptyCallsHint: "ستظهر هنا الاستدعاءات الواردة لقسمك.",
   waiter: "استدعاء غارسون",
   hookah: "استدعاء أراكيل",
+  hookahDepartment: "قسم الأراكيل",
+  waiterDepartment: "فريق الخدمة",
   table: "الطاولة",
   tableIdentifier: "معرّف الطاولة",
   locationUnavailable: "اسم الطاولة والطابق غير متاحين من الـ API حالياً.",
