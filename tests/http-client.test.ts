@@ -77,6 +77,24 @@ describe("HTTP client phase 1", () => {
     result = response({ error: { code: "INTERNAL_ERROR", message: "secret" }, requestId: "a" }, 503);
     await expect(client.publicRequest("GET", "/resource")).rejects.toMatchObject({ status: 503 });
   });
+
+  it("maps non-2xx responses without exposing server messages", async () => {
+    for (const [status, code] of [[403, "PLAN_FEATURE_DISABLED"], [404, "NOT_FOUND"], [409, "SHIFT_ALREADY_ACTIVE"]] as const) {
+      const client = new HttpClient(base, async () => response({
+        error: { code, message: "internal: employees.password_hash leaked" },
+        requestId: "safe-correlation-id",
+      }, status));
+      const failure = await client.publicRequest("GET", "/employee/calls").catch((e: unknown) => e);
+      expect(failure).toMatchObject({ status, code, requestId: "safe-correlation-id" });
+      expect(describeApiError(failure)).not.toContain("password_hash");
+    }
+  });
+  it("converts network failures to retryable errors", async () => {
+    const client = new HttpClient(base, async () => { throw new TypeError("Network request failed"); });
+    const failure = await client.publicRequest("GET", "/employee/calls").catch((e: unknown) => e);
+    expect(failure).toMatchObject({ code: "NETWORK_ERROR", retryable: true });
+    expect(describeApiError(failure)).not.toContain("TypeError");
+  });
   it("returns TIMEOUT on an aborted stalled fetch and retries safe reads only", async () => {
     const client = new HttpClient(base, async (_url, init) => new Promise<Response>((_resolve, reject) => {
       init.signal?.addEventListener("abort", () => reject(new Error("aborted")));

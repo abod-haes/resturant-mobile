@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { PropsWithChildren } from "react";
 import * as SecureStore from "expo-secure-store";
 import { useQueryClient } from "@tanstack/react-query";
-import { employeeApi, isUnauthorized } from "../../shared/api";
+import { employeeApi, isUnauthorized, ApiError } from "../../shared/api";
 import type { Employee } from "../../shared/api";
 import type { LoginInput, ChangePasswordInput } from "../../shared/api/types";
 import { strings } from "../../shared/config/strings";
@@ -45,7 +45,13 @@ export function SessionProvider({ children }: PropsWithChildren) {
       const result = await employeeApi.refresh(credential);
       if (version !== generation.current) return;
       // Persist the rotated credential BEFORE using the new access JWT.
-      await SecureStore.setItemAsync(REFRESH_KEY, result.refreshToken);
+      try {
+        await SecureStore.setItemAsync(REFRESH_KEY, result.refreshToken);
+      } catch {
+        // The previous refresh token was already spent on the backend.
+        // Never retry it: replay would revoke the active session.
+        throw new ApiError("UNAUTHORIZED", 401, "Rotated credential could not be persisted");
+      }
       if (version !== generation.current) return;
       employeeApi.setAccessToken(result.accessToken);
       queryClient.clear();
