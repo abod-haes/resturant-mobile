@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { EmployeeEventCallbacks } from "./employee-events";
 
 export const departmentSchema = z.enum(["waiter", "hookah"]);
 export type Department = z.infer<typeof departmentSchema>;
@@ -95,4 +96,5 @@ export interface EmployeeApi {
   listDevices(): Promise<PushDevice[]>;
   registerDevice(input: RegisterDeviceInput): Promise<PushDevice>;
   unregisterDevice(id: string): Promise<void>;
+  subscribeEvents(callbacks: EmployeeEventCallbacks): () => void;
 }

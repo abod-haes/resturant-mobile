@@ -31,6 +31,17 @@ export class HttpClient {
     private readonly fetcher: Fetcher = (url, init) => fetch(url, init),
   ) {}
   setAccessToken(value: string | null): void { this.accessToken = value; }
+  /** Used exclusively by the SSE transport; never log or place access tokens in URLs. */
+  getRealtimeAccessToken(): string | null { return this.accessToken; }
+  async refreshRealtimeAccessToken(failedToken: string): Promise<void> {
+    if (this.accessToken === failedToken) await this.refreshOnce();
+    if (!this.accessToken || this.accessToken === failedToken)
+      throw new ApiError("UNAUTHORIZED", 401, "Realtime authentication failed");
+  }
+  acceptRealtimeForbidden(payload: unknown): void {
+    const failure = parseApiFailure(payload, 403);
+    if (failure.code === "PASSWORD_CHANGE_REQUIRED") this.onPasswordChangeRequired?.();
+  }
   setReauthenticate(callback: (() => Promise<void>) | null): void { this.reauthenticate = callback; }
   setPasswordChangeRequired(callback: (() => void) | null): void {
     this.onPasswordChangeRequired = callback;

@@ -65,6 +65,7 @@ export const mockEmployeeApi: EmployeeApi = {
   setAccessToken(next) { accessToken = next; },
   setReauthenticate() { /* Development adapter has non-expiring simulated sessions. */ },
   setPasswordChangeRequired() { /* No protected password enforcement in development mock. */ },
+  subscribeEvents() { /* No production HTTP stream in mock mode. */ return () => undefined; },
   async login({ username, password }) {
     await mockDelay();
     if (!password.trim()) throw new ApiError("VALIDATION_ERROR", 422, "أدخل كلمة المرور.");
