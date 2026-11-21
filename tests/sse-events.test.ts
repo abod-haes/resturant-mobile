@@ -85,7 +85,7 @@ describe("push and SSE share an authenticated cache-invalidation channel", () =>
 describe("authenticated SSE transport", () => {
   it("refreshes a rejected bearer and uses the fresh JWT in headers, not the URL", async () => {
     let token = "expired";
-    const attempts: Array<{ url: string; headers: Record<string, string> }> = [];
+    const attempts: { url: string; headers: Record<string, string> }[] = [];
     const renew = vi.fn(async (failed: string) => {
       expect(failed).toBe("expired");
       token = "fresh";

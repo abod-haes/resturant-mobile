@@ -28,25 +28,27 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   const [logoutError, setLogoutError] = useState<unknown>(null);
   const shifts = useShiftActions(user?.id);
   const feed = useEmployeeCalls(user?.id);
+  const { filter, setFilter, refresh: refreshCalls, loadMore } = feed;
+  const { refresh: refreshShift } = shifts;
 
   const chooseFilter = useCallback((next: CallFilter) => {
-    if (next === feed.filter) return;
+    if (next === filter) return;
     hasScrolled.current = false;
-    feed.setFilter(next);
+    setFilter(next);
     list.current?.scrollToOffset({ offset: 0, animated: false });
-  }, [feed.filter, feed.setFilter]);
+  }, [filter, setFilter]);
 
   const refresh = useCallback(() => {
-    void Promise.all([shifts.refresh(), feed.refresh()]);
-  }, [shifts.refresh, feed.refresh]);
+    void Promise.all([refreshShift(), refreshCalls()]);
+  }, [refreshShift, refreshCalls]);
 
   const loadOnScroll = useCallback(() => {
     // FlatList may fire onEndReached on mount/when too few items fit.
     // Require an actual drag, and allow one automatic page per drag.
     if (!hasScrolled.current) return;
     hasScrolled.current = false;
-    feed.loadMore();
-  }, [feed.loadMore]);
+    loadMore();
+  }, [loadMore]);
 
   const renderCall = useCallback(
     ({ item }: ListRenderItemInfo<ServiceCall>) => <CallCard call={item} />, [],
