@@ -2,7 +2,6 @@ import { z } from "zod";
 import { ApiError } from "./errors";
 import { httpClient, validateApiBaseUrl } from "./http/client";
 import { subscribeEmployeeEvents } from "./employee-events";
-import { fetch as expoFetch } from "expo/fetch";
 import { callSchema, employeeSchema, pageMetaSchema, pushDeviceSchema, sessionSchema, shiftSchema } from "./types";
 import type { EmployeeApi, CallPageQuery, LoginInput, ChangePasswordInput } from "./types";
 
@@ -68,7 +67,12 @@ export const liveEmployeeApi: EmployeeApi = {
   subscribeEvents(callbacks) {
     const connection = subscribeEmployeeEvents({
       url: validateApiBaseUrl(process.env.EXPO_PUBLIC_API_BASE_URL) + "/employee/events?after=0",
-      fetcher: (url, init) => expoFetch(url, init),
+      // Load native streaming transport only when an SSE session starts.
+      // Plain HTTP adapter imports remain compatible with Node/Vitest.
+      fetcher: async (url, init) => {
+        const { fetch: expoFetch } = await import("expo/fetch");
+        return expoFetch(url, init);
+      },
       getToken: () => httpClient.getRealtimeAccessToken(),
       refreshToken: (token) => httpClient.refreshRealtimeAccessToken(token),
       onForbidden: (payload) => httpClient.acceptRealtimeForbidden(payload),
