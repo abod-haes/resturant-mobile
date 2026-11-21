@@ -16,7 +16,7 @@ export function QueryLifecycle() {
     return () => {
       unsubscribe();
       app.remove();
-      onlineManager.setOnline(undefined);
+      onlineManager.setOnline(true);
       focusManager.setFocused(true);
     };
   }, []);
