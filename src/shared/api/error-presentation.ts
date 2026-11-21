@@ -157,6 +157,11 @@ export function getErrorPresentation(
   if (value.code === "PUSH_SETUP_FAILED") action = "retry";
   if (context === "devices" && value.code === "DEVICE_LIMIT_REACHED") action = "none";
   if (context === "devices" && value.code === "DEVICE_ALREADY_REGISTERED") action = "none";
+  if (context === "change-password" && value.status === 403 && value.code !== "PASSWORD_CHANGE_REQUIRED") {
+    key = "currentPasswordInvalid";
+    fieldErrors.currentPassword = feedbackText("currentPasswordInvalid", locale);
+    action = "none";
+  }
 
   const remaining = options.remainingSeconds ?? value.retryAfterSeconds;
   const countdown = value.status === 429 && remaining !== undefined && remaining > 0

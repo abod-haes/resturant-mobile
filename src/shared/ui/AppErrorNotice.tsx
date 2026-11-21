@@ -27,7 +27,6 @@ export function AppErrorNotice({
   const remaining = useRetryCooldown(error);
 
   if (error === null || error === undefined) return null;
-  const remaining = deadline === null ? undefined : Math.max(0, Math.ceil((deadline - now) / 1000));
   const presentation = getErrorPresentation(error, { context, locale, remainingSeconds: remaining });
   const allowed = !loading && remaining === 0;
   const canAct = presentation.action === "retry" ? Boolean(onRetry && allowed) :

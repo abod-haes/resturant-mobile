@@ -6,10 +6,10 @@ import { AppCard } from "../../shared/ui/AppCard";
 import { AppInput } from "../../shared/ui/AppInput";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
 import { isMockMode } from "../../shared/api";
-import { getErrorPresentation } from "../../shared/api/error-presentation";
+import { getErrorPresentation, normalizeApiError } from "../../shared/api/error-presentation";
 import type { FieldErrors } from "../../shared/api/error-presentation";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
-import { feedbackText } from "../../shared/i18n/feedback";
+import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
 import { radius, spacing, useAppTheme } from "../../shared/config/theme";
 import { strings } from "../../shared/config/strings";
 import { useSession } from "./SessionProvider";
@@ -25,7 +25,7 @@ export function SignInScreen() {
   const cooldown = useRetryCooldown(error);
 
   function clearField(field: "username" | "password") {
-    setError(null);
+    if (normalizeApiError(error).status !== 429) setError(null);
     setFields((current) => ({ ...current, [field]: undefined }));
   }
   async function submit() {
@@ -88,7 +88,7 @@ export function SignInScreen() {
             <AppErrorNotice error={error} context="login" />
             {notice && <Text style={[styles.notice, { color: colors.muted }]}>{notice}</Text>}
             <AppButton
-              title={cooldown > 0 ? feedbackText("retryAfter").replace("{seconds}", String(cooldown)) : strings.login}
+              title={cooldown > 0 ? formatFeedback("retryAfter", { seconds: cooldown }) : strings.login}
               onPress={() => void submit()}
               loading={pending}
               disabled={cooldown > 0}

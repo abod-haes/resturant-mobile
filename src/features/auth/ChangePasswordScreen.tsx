@@ -5,7 +5,7 @@ import { AppButton } from "../../shared/ui/AppButton";
 import { AppCard } from "../../shared/ui/AppCard";
 import { AppInput } from "../../shared/ui/AppInput";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
-import { getErrorPresentation } from "../../shared/api/error-presentation";
+import { getErrorPresentation, normalizeApiError } from "../../shared/api/error-presentation";
 import type { AppField, FieldErrors } from "../../shared/api/error-presentation";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
@@ -25,7 +25,7 @@ export function ChangePasswordScreen() {
   const cooldown = useRetryCooldown(error);
 
   function clear(field: AppField) {
-    setError(null);
+    if (normalizeApiError(error).status !== 429) setError(null);
     setFields((previous) => ({ ...previous, [field]: undefined }));
   }
   async function submit() {
@@ -33,6 +33,7 @@ export function ChangePasswordScreen() {
     const next: FieldErrors = {};
     if (!currentPassword) next.currentPassword = feedbackText("formRequired");
     if (newPassword.length < 12) next.newPassword = feedbackText("newPasswordInvalid");
+    if (currentPassword && newPassword === currentPassword) next.newPassword = feedbackText("newPasswordDifferent");
     if (!confirmation) next.confirmation = feedbackText("formRequired");
     else if (confirmation !== newPassword) next.confirmation = feedbackText("confirmationInvalid");
     if (Object.keys(next).length) {
