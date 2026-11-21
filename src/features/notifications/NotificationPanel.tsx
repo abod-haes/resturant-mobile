@@ -5,7 +5,8 @@ import { AppCard } from "../../shared/ui/AppCard";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
 import { useFeedback } from "../../shared/ui/AppToast";
 import { ApiError } from "../../shared/api";
-import { feedbackText } from "../../shared/i18n/feedback";
+import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
+import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { spacing, useAppTheme } from "../../shared/config/theme";
 import { strings } from "../../shared/config/strings";
 import { prepareNotifications, type PreparationResult } from "./runtime";
@@ -17,9 +18,10 @@ export function NotificationPanel() {
   const { showToast } = useFeedback();
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<unknown>(null);
+  const cooldown = useRetryCooldown(error);
 
   async function prepare() {
-    if (status === "loading") return;
+    if (status === "loading" || cooldown > 0) return;
     setStatus("loading");
     setError(null);
     try {
@@ -55,11 +57,11 @@ export function NotificationPanel() {
       </View>
       <AppErrorNotice error={error} context="devices" onRetry={() => void prepare()} loading={status === "loading"} />
       <AppButton
-        title={strings.enableNotifications}
+        title={cooldown > 0 ? formatFeedback("retryAfter", { seconds: cooldown }) : strings.enableNotifications}
         variant="secondary"
         onPress={() => void prepare()}
         loading={status === "loading"}
-        disabled={status === "registered"}
+        disabled={status === "registered" || cooldown > 0}
       />
     </AppCard>
   );
