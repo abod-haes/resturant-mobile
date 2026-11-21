@@ -9,13 +9,15 @@ import { getErrorPresentation, normalizeApiError } from "../../shared/api/error-
 import type { AppField, FieldErrors } from "../../shared/api/error-presentation";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
-import { spacing, useAppTheme } from "../../shared/config/theme";
+import { spacing, typeScale, useAppTheme } from "../../shared/config/theme";
+import { useAppLayout } from "../../shared/config/layout";
 import { strings } from "../../shared/config/strings";
 import { useSession } from "./SessionProvider";
 
 export function ChangePasswordScreen() {
   const { changePassword } = useSession();
   const { colors } = useAppTheme();
+  const layout = useAppLayout();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
@@ -57,22 +59,23 @@ export function ChangePasswordScreen() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView style={styles.safe} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Text style={[styles.title, { color: colors.text }]}>{strings.changePassword}</Text>
+        <ScrollView contentContainerStyle={[styles.content, { padding: layout.formPadding, maxWidth: layout.maxFormWidth }]}
+          keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}>
+          <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>{strings.changePassword}</Text>
           <Text style={[styles.hint, { color: colors.muted }]}>{strings.changePasswordHint}</Text>
           <AppCard style={styles.form}>
             <AppInput
-              label={strings.currentPassword} error={fields.currentPassword}
+              label={strings.currentPassword} textDirection="ltr" error={fields.currentPassword}
               value={currentPassword} onChangeText={(value) => { setCurrentPassword(value); clear("currentPassword"); }}
               secureTextEntry textContentType="password" autoCapitalize="none"
             />
             <AppInput
-              label={strings.newPassword} error={fields.newPassword}
+              label={strings.newPassword} textDirection="ltr" error={fields.newPassword}
               value={newPassword} onChangeText={(value) => { setNewPassword(value); clear("newPassword"); }}
               secureTextEntry textContentType="newPassword" autoCapitalize="none"
             />
             <AppInput
-              label={strings.confirmPassword} error={fields.confirmation}
+              label={strings.confirmPassword} textDirection="ltr" error={fields.confirmation}
               value={confirmation} onChangeText={(value) => { setConfirmation(value); clear("confirmation"); }}
               secureTextEntry textContentType="newPassword" autoCapitalize="none"
             />
@@ -93,9 +96,9 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: {
     flexGrow: 1, justifyContent: "center", gap: spacing.lg,
-    padding: spacing.xxl, alignSelf: "center", width: "100%", maxWidth: 560,
+    alignSelf: "center", width: "100%",
   },
   form: { gap: spacing.lg },
-  title: { fontSize: 26, fontWeight: "800", textAlign: "right" },
-  hint: { fontSize: 14, lineHeight: 23, textAlign: "right" },
+  title: { fontSize: typeScale.title, fontWeight: "800", textAlign: "right" },
+  hint: { fontSize: typeScale.body, textAlign: "right" },
 });

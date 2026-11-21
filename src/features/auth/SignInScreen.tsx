@@ -10,13 +10,15 @@ import { getErrorPresentation, normalizeApiError } from "../../shared/api/error-
 import type { FieldErrors } from "../../shared/api/error-presentation";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
-import { radius, spacing, useAppTheme } from "../../shared/config/theme";
+import { radius, spacing, typeScale, useAppTheme } from "../../shared/config/theme";
+import { useAppLayout } from "../../shared/config/layout";
 import { strings } from "../../shared/config/strings";
 import { useSession } from "./SessionProvider";
 
 export function SignInScreen() {
   const { signIn, notice } = useSession();
   const { colors } = useAppTheme();
+  const layout = useAppLayout();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
@@ -54,17 +56,20 @@ export function SignInScreen() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <View style={[styles.mark, { backgroundColor: colors.primary }]}>
-            <Text style={[styles.markText, { color: colors.onPrimary }]}>R</Text>
+        <ScrollView contentContainerStyle={[styles.content, { padding: layout.formPadding, maxWidth: layout.maxFormWidth }]}
+          keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}>
+          <View accessible={false} importantForAccessibility="no-hide-descendants"
+            style={[styles.mark, { backgroundColor: colors.primary }]}>
+            <Text allowFontScaling={false} style={[styles.markText, { color: colors.onPrimary }]}>R</Text>
           </View>
           <Text style={[styles.eyebrow, { color: colors.primary }]}>{strings.appName}</Text>
-          <Text style={[styles.title, { color: colors.text }]}>{strings.welcome}</Text>
+          <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>{strings.welcome}</Text>
           <Text style={[styles.description, { color: colors.muted }]}>{strings.signInDescription}</Text>
           <AppCard style={styles.form}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>{strings.signIn}</Text>
+            <Text accessibilityRole="header" style={[styles.cardTitle, { color: colors.text }]}>{strings.signIn}</Text>
             <AppInput
               label={strings.username}
+              textDirection="ltr"
               error={fields.username}
               value={username}
               onChangeText={(value) => { setUsername(value); clearField("username"); }}
@@ -76,6 +81,7 @@ export function SignInScreen() {
             />
             <AppInput
               label={strings.password}
+              textDirection="ltr"
               error={fields.password}
               value={password}
               onChangeText={(value) => { setPassword(value); clearField("password"); }}
@@ -109,16 +115,16 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: {
     flexGrow: 1, justifyContent: "center", alignSelf: "center",
-    width: "100%", maxWidth: 560, padding: spacing.xxl, gap: spacing.md,
+    width: "100%", gap: spacing.md,
   },
   mark: { width: 64, height: 64, borderRadius: radius.lg, alignItems: "center", justifyContent: "center", alignSelf: "flex-end" },
   markText: { fontSize: 32, fontWeight: "800" },
   eyebrow: { textAlign: "right", fontSize: 14, fontWeight: "700", marginTop: spacing.md },
-  title: { textAlign: "right", fontSize: 32, fontWeight: "800", letterSpacing: -0.5 },
-  description: { textAlign: "right", fontSize: 15, lineHeight: 24, marginBottom: spacing.sm },
+  title: { textAlign: "right", fontSize: typeScale.hero, fontWeight: "800" },
+  description: { textAlign: "right", fontSize: typeScale.control, marginBottom: spacing.sm },
   form: { marginTop: spacing.sm, gap: spacing.lg },
-  cardTitle: { fontSize: 18, fontWeight: "800", textAlign: "right" },
-  notice: { fontSize: 13, lineHeight: 21, textAlign: "right" },
+  cardTitle: { fontSize: typeScale.sectionTitle, fontWeight: "800", textAlign: "right" },
+  notice: { fontSize: typeScale.meta, textAlign: "right" },
   demo: { padding: spacing.lg, borderRadius: radius.md, marginTop: spacing.md },
-  demoText: { fontSize: 12, lineHeight: 20, textAlign: "right" },
+  demoText: { fontSize: typeScale.caption, textAlign: "right" },
 });
