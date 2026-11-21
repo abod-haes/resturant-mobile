@@ -1,0 +1,38 @@
+/** Single source of theme colors; WCAG text contrast is exercised in CI. */
+export const colorPalettes = {
+  light: {
+    background: "#F5F7F7",
+    surface: "#FFFFFF",
+    surfaceAlt: "#EDF3F1",
+    primary: "#075E53",
+    primaryPressed: "#064B43",
+    accent: "#D9ECE5",
+    text: "#132F30",
+    muted: "#546B6B",
+    border: "#DAE4E0",
+    danger: "#B73E43",
+    dangerSurface: "#FFF0F0",
+    success: "#167353",
+    successSurface: "#E0F3E8",
+    onPrimary: "#FFFFFF",
+    input: "#FFFFFF",
+  },
+  dark: {
+    background: "#101B1C",
+    surface: "#1B292A",
+    surfaceAlt: "#233736",
+    primary: "#6BC8AD",
+    primaryPressed: "#89DCC3",
+    accent: "#29483E",
+    text: "#ECF5F2",
+    muted: "#A2B9B5",
+    border: "#344948",
+    danger: "#FF949A",
+    dangerSurface: "#3C292D",
+    success: "#83D8AD",
+    successSurface: "#244A3C",
+    onPrimary: "#102421",
+    input: "#1B292A",
+  },
+} as const;
+export type AppColors = { [K in keyof typeof colorPalettes.light]: string };
