@@ -4,7 +4,7 @@ import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
 import { AppButton } from "../../shared/ui/AppButton";
 import { AppCard } from "../../shared/ui/AppCard";
-import { spacing, radius, useAppTheme } from "../../shared/config/theme";
+import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
 import { strings } from "../../shared/config/strings";
 
 type Props = {
@@ -26,8 +26,8 @@ export function ShiftPanel({ shift, loading, changing, error, onToggle, onRetry 
   return (
     <AppCard>
       <View style={styles.header}>
-        <View style={[styles.dot, { backgroundColor: active ? colors.success : colors.muted }]} />
-        <Text style={[styles.heading, { color: colors.text }]}>{strings.shiftTitle}</Text>
+        <View accessible={false} style={[styles.dot, { backgroundColor: active ? colors.success : colors.muted }]} />
+        <Text accessibilityRole="header" style={[styles.heading, { color: colors.text }]}>{strings.shiftTitle}</Text>
       </View>
       {loading ? (
         <Text style={[styles.state, { color: colors.muted }]}>{strings.loading}</Text>
@@ -35,7 +35,7 @@ export function ShiftPanel({ shift, loading, changing, error, onToggle, onRetry 
         <>
           {shift !== undefined && (
             <View style={[styles.status, { backgroundColor: active ? colors.successSurface : colors.surfaceAlt }]}>
-              <Text style={[styles.state, { color: active ? colors.success : colors.muted }]}>
+              <Text accessibilityLiveRegion="polite" style={[styles.state, { color: active ? colors.success : colors.muted }]}>
                 {active ? strings.onShift : strings.offShift}
               </Text>
               {autoEnd && (
@@ -66,7 +66,7 @@ export function ShiftPanel({ shift, loading, changing, error, onToggle, onRetry 
 const styles = StyleSheet.create({
   header: { flexDirection: "row-reverse", alignItems: "center", gap: spacing.sm },
   dot: { width: 9, height: 9, borderRadius: 5 },
-  heading: { fontSize: 17, fontWeight: "800", textAlign: "right" },
+  heading: { fontSize: typeScale.cardTitle, fontWeight: "800", textAlign: "right", flexShrink: 1 },
   status: { borderRadius: radius.sm, padding: spacing.lg, gap: spacing.sm },
-  state: { textAlign: "right", fontSize: 14, fontWeight: "600" },
+  state: { textAlign: "right", fontSize: typeScale.body, fontWeight: "600", flexShrink: 1 },
 });

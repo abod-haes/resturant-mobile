@@ -1,19 +1,19 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { PropsWithChildren } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { AccessibilityInfo, View, Text, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { radius, spacing, useAppTheme } from "../config/theme";
+import { radius, spacing, typeScale, useAppTheme } from "../config/theme";
 import { feedbackText } from "../i18n/feedback";
 
 type Toast = { message: string; kind: "success" | "error"; key: string; id: number };
 type FeedbackContextValue = { showToast(input: { message: string; kind?: Toast["kind"]; key?: string }): void };
 const FeedbackContext = createContext<FeedbackContextValue | null>(null);
 
-/** One transient toast at a time; repeated identical notices are deduplicated. */
 export function FeedbackProvider({ children }: PropsWithChildren) {
   const { colors } = useAppTheme();
   const insets = useSafeAreaInsets();
   const [toast, setToast] = useState<Toast | null>(null);
+  const [screenReaderEnabled, setScreenReaderEnabled] = useState(false);
   const serial = useRef(0);
   const last = useRef<{ key: string; at: number } | null>(null);
 
@@ -28,24 +28,40 @@ export function FeedbackProvider({ children }: PropsWithChildren) {
   }, []);
 
   useEffect(() => {
-    if (!toast) return;
-    const timeout = setTimeout(() => setToast((current) => current?.id === toast.id ? null : current), 3200);
+    let active = true;
+    void AccessibilityInfo.isScreenReaderEnabled()
+      .then((enabled) => { if (active) setScreenReaderEnabled(enabled); })
+      .catch(() => undefined);
+    const subscription = AccessibilityInfo.addEventListener("screenReaderChanged", setScreenReaderEnabled);
+    return () => { active = false; subscription.remove(); };
+  }, []);
+
+  useEffect(() => {
+    if (!toast || screenReaderEnabled) return;
+    // Reading time scales with message length; screen-reader users dismiss manually.
+    const duration = Math.min(12_000, Math.max(4500, 2800 + toast.message.length * 75));
+    const timeout = setTimeout(() => setToast((current) => current?.id === toast.id ? null : current), duration);
     return () => clearTimeout(timeout);
-  }, [toast]);
+  }, [toast, screenReaderEnabled]);
+
   const value = useMemo(() => ({ showToast }), [showToast]);
   return (
     <FeedbackContext.Provider value={value}>
       {children}
       {toast && (
-        <View pointerEvents="box-none" style={[styles.overlay, { bottom: Math.max(spacing.lg, insets.bottom + spacing.md) }]}>
+        <View pointerEvents="box-none"
+          style={[styles.overlay, { bottom: Math.max(spacing.lg, insets.bottom + spacing.md) }]}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={feedbackText("dismiss")}
-            accessibilityHint={toast.message}
+            accessibilityLabel={toast.message + ". " + feedbackText("dismiss")}
             onPress={() => setToast(null)}
-            style={[styles.toast, { backgroundColor: colors.surface, borderColor: toast.kind === "error" ? colors.danger : colors.success }]}
+            style={[styles.toast, {
+              backgroundColor: colors.surface,
+              borderColor: toast.kind === "error" ? colors.danger : colors.success,
+            }]}
           >
-            <Text accessibilityLiveRegion="polite" style={[styles.message, { color: colors.text }]}>{toast.message}</Text>
+            <Text allowFontScaling accessibilityLiveRegion="polite"
+              style={[styles.message, { color: colors.text }]}>{toast.message}</Text>
           </Pressable>
         </View>
       )}
@@ -59,11 +75,15 @@ export function useFeedback(): FeedbackContextValue {
   return context;
 }
 const styles = StyleSheet.create({
-  overlay: { position: "absolute", left: spacing.md, right: spacing.md, alignItems: "center", zIndex: 10 },
+  overlay: {
+    position: "absolute", left: spacing.md, right: spacing.md,
+    alignItems: "center", zIndex: 10,
+  },
   toast: {
-    minHeight: 48, width: "100%", maxWidth: 500, borderRadius: radius.md,
-    borderWidth: 1, paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
+    minHeight: 48, width: "100%", maxWidth: 500,
+    borderRadius: radius.md, borderWidth: 1,
+    paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
     justifyContent: "center",
   },
-  message: { fontSize: 14, lineHeight: 22, textAlign: "center" },
+  message: { fontSize: typeScale.body, textAlign: "center" },
 });

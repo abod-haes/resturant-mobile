@@ -1,5 +1,6 @@
 import { Pressable, Text, View, StyleSheet } from "react-native";
-import { spacing, radius, useAppTheme } from "../../shared/config/theme";
+import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
+import { layoutTokens } from "../../shared/config/layout";
 import { strings } from "../../shared/config/strings";
 import type { CallFilter } from "./model";
 
@@ -18,7 +19,7 @@ const options: readonly { value: CallFilter; label: string }[] = [
 export function CallsFilter({ value, onChange, disabled = false }: Props) {
   const { colors } = useAppTheme();
   return (
-    <View accessibilityRole="radiogroup" style={styles.container}>
+    <View accessibilityRole="radiogroup" accessibilityLabel={strings.callsFilterLabel} style={styles.container}>
       {options.map((item) => {
         const selected = item.value === value;
         return (
@@ -38,7 +39,7 @@ export function CallsFilter({ value, onChange, disabled = false }: Props) {
               },
             ]}
           >
-            <Text style={[styles.label, { color: selected ? colors.onPrimary : colors.text }]}>
+            <Text allowFontScaling style={[styles.label, { color: selected ? colors.onPrimary : colors.text }]}>
               {item.label}
             </Text>
           </Pressable>
@@ -53,9 +54,10 @@ const styles = StyleSheet.create({
     alignItems: "center", gap: spacing.sm,
   },
   option: {
-    minHeight: 44, minWidth: 72, justifyContent: "center", alignItems: "center",
+    minHeight: layoutTokens.minTouchTarget, minWidth: 72, maxWidth: "100%",
+    justifyContent: "center", alignItems: "center",
     borderWidth: 1, borderRadius: radius.md,
     paddingVertical: spacing.sm, paddingHorizontal: spacing.md,
   },
-  label: { fontSize: 13, fontWeight: "700", textAlign: "center" },
+  label: { fontSize: typeScale.meta, fontWeight: "700", textAlign: "center", flexShrink: 1 },
 });

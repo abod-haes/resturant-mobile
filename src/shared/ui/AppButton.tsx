@@ -1,6 +1,7 @@
 import { ActivityIndicator, Pressable, Text, StyleSheet } from "react-native";
 import type { StyleProp, ViewStyle } from "react-native";
-import { radius, spacing, useAppTheme } from "../config/theme";
+import { radius, spacing, typeScale, useAppTheme } from "../config/theme";
+import { layoutTokens } from "../config/layout";
 
 type Props = {
   title: string;
@@ -8,12 +9,16 @@ type Props = {
   variant?: "primary" | "secondary" | "danger";
   disabled?: boolean;
   loading?: boolean;
+  accessibilityHint?: string;
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 };
 
+/** The touch target and label grow with system text settings; never truncate CTAs. */
 export function AppButton({
-  title, onPress, variant = "primary", disabled = false, loading = false, style, testID,
+  title, onPress, variant = "primary", disabled = false, loading = false,
+  accessibilityHint, accessibilityLabel, style, testID,
 }: Props) {
   const { colors } = useAppTheme();
   const backgroundColor = variant === "primary"
@@ -26,7 +31,8 @@ export function AppButton({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={title}
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       testID={testID}
       disabled={disabled || loading}
@@ -38,20 +44,27 @@ export function AppButton({
       ]}
     >
       {loading && <ActivityIndicator color={foreground} size="small" />}
-      <Text style={[styles.title, { color: foreground }]}>{title}</Text>
+      <Text allowFontScaling style={[styles.title, { color: foreground }]}>{title}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
-    minHeight: 50,
+    minHeight: layoutTokens.minTouchTarget + 2,
+    minWidth: 0,
+    maxWidth: "100%",
     borderRadius: radius.md,
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
   },
-  title: { fontSize: 15, fontWeight: "700", textAlign: "center" },
+  title: {
+    fontSize: typeScale.control, fontWeight: "700",
+    textAlign: "center", flexShrink: 1,
+  },
 });

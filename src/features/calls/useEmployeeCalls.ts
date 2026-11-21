@@ -21,10 +21,11 @@ export function useEmployeeCalls(employeeId: string | undefined) {
     getNextPageParam: nextCallsCursor,
   });
   const calls = useMemo(() => uniqueCalls(query.data?.pages ?? []), [query.data?.pages]);
+  const { hasNextPage, isFetching, fetchNextPage } = query;
   const loadMore = useCallback(() => {
-    if (!query.hasNextPage || query.isFetching || !employeeId) return;
-    void query.fetchNextPage();
-  }, [query.hasNextPage, query.isFetching, query.fetchNextPage, employeeId]);
+    if (!hasNextPage || isFetching || !employeeId) return;
+    void fetchNextPage();
+  }, [hasNextPage, isFetching, fetchNextPage, employeeId]);
   const refresh = useCallback(async () => {
     if (!employeeId || manualRefreshing) return;
     setManualRefreshing(true);

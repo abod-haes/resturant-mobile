@@ -1,20 +1,22 @@
 import { ActivityIndicator, Text, View, StyleSheet } from "react-native";
-import { spacing, useAppTheme } from "../config/theme";
+import { spacing, typeScale, useAppTheme } from "../config/theme";
+import { feedbackText } from "../i18n/feedback";
 import { AppButton } from "./AppButton";
 
 export function Feedback({
-  message, retry, loading = false,
-}: { message: string; retry?: () => void; loading?: boolean }) {
+  message, retry, loading = false, retryLabel = feedbackText("retry"),
+}: { message: string; retry?: () => void; loading?: boolean; retryLabel?: string }) {
   const { colors } = useAppTheme();
   return (
     <View style={styles.wrapper}>
-      {loading && <ActivityIndicator color={colors.primary} />}
-      <Text style={[styles.message, { color: colors.muted }]}>{message}</Text>
-      {retry && <AppButton title="إعادة المحاولة" onPress={retry} variant="secondary" />}
+      {loading && <ActivityIndicator accessibilityLabel={message} color={colors.primary} />}
+      <Text accessibilityLiveRegion="polite" allowFontScaling
+        style={[styles.message, { color: colors.muted }]}>{message}</Text>
+      {retry && <AppButton title={retryLabel} onPress={retry} variant="secondary" />}
     </View>
   );
 }
 const styles = StyleSheet.create({
-  wrapper: { alignItems: "center", justifyContent: "center", padding: spacing.xxl, gap: spacing.lg },
-  message: { fontSize: 14, lineHeight: 22, textAlign: "center" },
+  wrapper: { minWidth: 0, alignItems: "center", justifyContent: "center", padding: spacing.xl, gap: spacing.lg },
+  message: { fontSize: typeScale.body, textAlign: "center" },
 });

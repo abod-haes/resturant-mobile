@@ -8,7 +8,7 @@ type OwnerAlert = {
   createdAt: string;
 };
 export type MockState = Omit<Seed, "shifts" | "ownerAlerts"> & {
-  shifts: Array<Omit<Seed["shifts"][number], "endedAt"> & { endedAt: string | null }>;
+  shifts: (Omit<Seed["shifts"][number], "endedAt"> & { endedAt: string | null })[];
   ownerAlerts: OwnerAlert[];
 };
 const seed: MockState = {
@@ -38,11 +38,11 @@ function resetRuntime(){sessions.clear();idem.clear();lastCall.clear()}
 export async function mockDelay(){if(scenario==="offline")throw new MockApiError("NETWORK_ERROR",0);if(scenario==="server_error")throw new MockApiError("INTERNAL_ERROR",500);await new Promise<void>(r=>setTimeout(r,scenario==="slow_network"?1800:120))}
 export const mockDb={
  list<K extends keyof MockState>(key:K):MockState[K]{return clone(state[key])},
- find<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees"|"subscriptions"|"shifts">(key:K,id:string){return clone((state[key] as Array<{id:string}>).find(x=>x.id===id)??null)},
- create<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees">(key:K,item:MockState[K][number]){(state[key] as Array<MockState[K][number]>).push(clone(item));return clone(item)},
- patch<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees">(key:K,id:string,changes:Partial<MockState[K][number]>){const rows=state[key] as Array<{id:string}>;const index=rows.findIndex(x=>x.id===id);if(index<0)throw new MockApiError("NOT_FOUND",404);const next={...rows[index],...changes};rows[index]=next;return clone(next)},
- archive<K extends "tables"|"products"|"categories"|"employees">(key:K,id:string){const rows=state[key] as Array<{id:string;archivedAt:string|null}>;const item=rows.find(x=>x.id===id);if(!item)throw new MockApiError("NOT_FOUND",404);item.archivedAt=new Date().toISOString();return clone(item)},
- listPage<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees"|"calls">(key:K,options:{branchId?:string;cursor?:string;limit?:number;search?:string}={}){const limit=Math.max(1,Math.min(100,options.limit??20));let rows=(state[key] as Array<{id:string;branchId?:string;name?:string}>).filter(x=>(!options.branchId||x.branchId===options.branchId)&&(!options.search||x.name?.includes(options.search)));const start=options.cursor?Math.max(0,rows.findIndex(x=>x.id===options.cursor)+1):0;rows=rows.slice(start,start+limit+1);return {items:clone(rows.slice(0,limit)),nextCursor:rows.length>limit?rows[limit-1].id:null}}
+ find<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees"|"subscriptions"|"shifts">(key:K,id:string){return clone((state[key] as {id:string}[]).find(x=>x.id===id)??null)},
+ create<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees">(key:K,item:MockState[K][number]){(state[key] as MockState[K][number][]).push(clone(item));return clone(item)},
+ patch<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees">(key:K,id:string,changes:Partial<MockState[K][number]>){const rows=state[key] as {id:string}[];const index=rows.findIndex(x=>x.id===id);if(index<0)throw new MockApiError("NOT_FOUND",404);const next={...rows[index],...changes};rows[index]=next;return clone(next)},
+ archive<K extends "tables"|"products"|"categories"|"employees">(key:K,id:string){const rows=state[key] as {id:string;archivedAt:string|null}[];const item=rows.find(x=>x.id===id);if(!item)throw new MockApiError("NOT_FOUND",404);item.archivedAt=new Date().toISOString();return clone(item)},
+ listPage<K extends "restaurants"|"branches"|"tables"|"products"|"categories"|"employees"|"calls">(key:K,options:{branchId?:string;cursor?:string;limit?:number;search?:string}={}){const limit=Math.max(1,Math.min(100,options.limit??20));let rows=(state[key] as {id:string;branchId?:string;name?:string}[]).filter(x=>(!options.branchId||x.branchId===options.branchId)&&(!options.search||x.name?.includes(options.search)));const start=options.cursor?Math.max(0,rows.findIndex(x=>x.id===options.cursor)+1):0;rows=rows.slice(start,start+limit+1);return {items:clone(rows.slice(0,limit)),nextCursor:rows.length>limit?rows[limit-1].id:null}}
 };
 export const mockCalls={
  createSession(qrToken:string){const table=state.tables.find(t=>t.qrToken===qrToken);if(!table||!table.qrEnabled||scenario==="qr_revoked")throw new MockApiError("QR_REVOKED",410);const token="mock-session-"+mockId();sessions.set(token,{tableId:table.id,lastActivity:Date.now(),confirmedFirstCall:false});return {sessionToken:token,expiresAt:Date.now()+14400000,confirmedFirstCall:false}},

@@ -29,7 +29,7 @@ export const strings = {
   waiterDepartment: "فريق الخدمة",
   table: "الطاولة",
   tableIdentifier: "معرّف الطاولة",
-  locationUnavailable: "اسم الطاولة والطابق غير متاحين من الـ API حالياً.",
+  locationUnavailable: "تفاصيل موقع الطاولة غير متاحة حالياً.",
   callTitle: "سجل استدعاء",
   autoEndLabel: "نهاية الدوام التلقائية:",
   unknownLocation: "الموقع غير محدد",
