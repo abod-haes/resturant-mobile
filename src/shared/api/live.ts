@@ -29,7 +29,7 @@ export const liveEmployeeApi: EmployeeApi = {
     unwrap(await httpClient.publicRequest("POST", "/auth/logout", {
       body: { refreshToken },
     }), z.object({ loggedOut: z.boolean() }));
-    httpClient.setAccessToken(null);
+    // SessionProvider owns local token cleanup, avoiding late logout clearing a new session.
   },
   async changePassword(input: ChangePasswordInput) {
     unwrap(await httpClient.authorized("POST", "/auth/change-password", {
