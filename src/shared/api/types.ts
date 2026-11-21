@@ -87,10 +87,10 @@ export interface EmployeeApi {
   getMe(): Promise<Employee>;
   logout(refreshToken: string): Promise<void>;
   changePassword(input: ChangePasswordInput): Promise<void>;
-  getCurrentShift(): Promise<Shift | null>;
+  getCurrentShift(signal?: AbortSignal): Promise<Shift | null>;
   startShift(): Promise<Shift>;
   endShift(): Promise<Shift>;
-  listCalls(query?: CallPageQuery): Promise<CallPage>;
+  listCalls(query?: CallPageQuery, signal?: AbortSignal): Promise<CallPage>;
   listDevices(): Promise<PushDevice[]>;
   registerDevice(input: RegisterDeviceInput): Promise<PushDevice>;
   unregisterDevice(id: string): Promise<void>;

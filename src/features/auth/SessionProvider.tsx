@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { PropsWithChildren } from "react";
 import * as SecureStore from "expo-secure-store";
 import { useQueryClient } from "@tanstack/react-query";
-import { employeeApi, isUnauthorized } from "../../shared/api";
+import { employeeApi, isUnauthorized, ApiError } from "../../shared/api";
 import type { Employee } from "../../shared/api";
 import type { LoginInput, ChangePasswordInput } from "../../shared/api/types";
 import { strings } from "../../shared/config/strings";
@@ -45,7 +45,13 @@ export function SessionProvider({ children }: PropsWithChildren) {
       const result = await employeeApi.refresh(credential);
       if (version !== generation.current) return;
       // Persist the rotated credential BEFORE using the new access JWT.
-      await SecureStore.setItemAsync(REFRESH_KEY, result.refreshToken);
+      try {
+        await SecureStore.setItemAsync(REFRESH_KEY, result.refreshToken);
+      } catch {
+        // The previous refresh token was already spent on the backend.
+        // Never retry it: replay would revoke the active session.
+        throw new ApiError("UNAUTHORIZED", 401, "Rotated credential could not be persisted");
+      }
       if (version !== generation.current) return;
       employeeApi.setAccessToken(result.accessToken);
       queryClient.clear();
@@ -93,12 +99,22 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }, [queryClient]);
 
   const signOut = useCallback(async () => {
-    const credential = await SecureStore.getItemAsync(REFRESH_KEY);
-    let remoteFailed = false;
-    if (credential) {
-      try { await employeeApi.logout(credential); } catch { remoteFailed = true; }
+    let credential: string | null = null;
+    try {
+      credential = await SecureStore.getItemAsync(REFRESH_KEY);
+    } finally {
+      // Revoke UI access and invalidate refresh generation BEFORE remote I/O.
+      // Never leave the user authenticated while the network logout hangs.
+      await clearLocal();
     }
-    await clearLocal(remoteFailed ? strings.logoutOffline : null);
+    if (credential) {
+      try {
+        await employeeApi.logout(credential);
+      } catch {
+        setSession((current) => current.status === "guest"
+          ? { ...current, notice: strings.logoutOffline } : current);
+      }
+    }
   }, [clearLocal]);
 
   const changePassword = useCallback(async (input: ChangePasswordInput) => {

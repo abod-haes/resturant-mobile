@@ -3,6 +3,8 @@ import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import { QueryLifecycle } from "../src/shared/api/query-lifecycle";
+import { canRetryRead } from "../src/shared/api/errors";
 import { SessionProvider, useSession } from "../src/features/auth";
 import { NotificationCoordinator } from "../src/features/notifications";
 
@@ -19,7 +21,7 @@ function AuthenticatedServices() {
 export default function RootLayout() {
   const [client] = useState(() => new QueryClient({
     defaultOptions: {
-      queries: { retry: 1, staleTime: 10000, refetchOnReconnect: true },
+      queries: { retry: canRetryRead, staleTime: 10000, refetchOnReconnect: true },
       mutations: { retry: false },
     },
   }));
@@ -27,6 +29,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={client}>
         <SessionProvider>
+          <QueryLifecycle />
           <StatusBar style="auto" />
           <AuthenticatedServices />
           <Stack screenOptions={{ headerShown: false }}>
