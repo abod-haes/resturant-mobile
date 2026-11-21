@@ -30,8 +30,13 @@ export function parseEmployeeFrame(frame: SseFrame): EmployeeStreamEvent | null 
   }
 }
 
+export type StreamRequest = {
+  method: "GET";
+  headers: Record<string, string>;
+  signal: AbortSignal;
+};
 export type EmployeeStreamTransport = {
-  fetcher(url: string, init: RequestInit): Promise<Response>;
+  fetcher(url: string, init: StreamRequest): Promise<Response>;
   getToken(): string | null;
   refreshToken(failed: string): Promise<void>;
   onForbidden?(error: unknown): void;

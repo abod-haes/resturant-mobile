@@ -17,7 +17,6 @@ export class SseFrameParser {
 
   write(chunk: string): SseFrame[] {
     this.buffer += chunk;
-    if (this.buffer.length > MAX_BUFFER) throw new Error("SSE line exceeds maximum size");
     const frames: SseFrame[] = [];
     let boundary: number;
     while ((boundary = this.buffer.indexOf("\n")) !== -1) {
@@ -53,6 +52,7 @@ export class SseFrameParser {
         this.eventId = value;
       }
     }
+    if (this.buffer.length > MAX_BUFFER) throw new Error("SSE line exceeds maximum size");
     return frames;
   }
 }
@@ -69,5 +69,5 @@ export function isNewerCursor(candidate: string, previous: string | null): boole
 export function retryDelay(attempt: number, random: number): number {
   const capped = Math.max(0, Math.min(attempt, 5));
   const jitter = 0.75 + Math.max(0, Math.min(random, 1)) * 0.5;
-  return Math.round(Math.min(30_000, 1_000 * 2 ** capped) * jitter);
+  return Math.min(30_000, Math.round(Math.min(30_000, 1_000 * 2 ** capped) * jitter));
 }

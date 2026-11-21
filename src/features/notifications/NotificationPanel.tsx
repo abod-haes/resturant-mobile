@@ -50,7 +50,10 @@ export function NotificationPanel({ employeeId }: { employeeId: string | null })
         text: strings.removeDevice,
         style: "destructive",
         onPress: () => remove.mutate(id, {
-          onSuccess: () => showToast({ message: strings.deviceRemoved, key: "device-removed-" + id }),
+          onSuccess: () => {
+            setStatus("idle");
+            showToast({ message: strings.deviceRemoved, key: "device-removed-" + id });
+          },
         }),
       },
     ]);

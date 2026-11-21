@@ -36,6 +36,11 @@ describe("SSE framing and cursor utilities", () => {
     ]);
     expect(parser.write("event: heartbeat\n\n")).toEqual([]);
   });
+  it("supports a large chunk containing multiple individually small frames", () => {
+    const parser = new SseFrameParser();
+    const frames = parser.write(makeEvent("1", "a").repeat(300));
+    expect(frames).toHaveLength(300);
+  });
   it("rejects overlarge frames without buffering unbounded data", () => {
     const parser = new SseFrameParser();
     expect(() => parser.write("data: " + "x".repeat(70_000) + "\n\n")).toThrow();
@@ -51,6 +56,7 @@ describe("SSE framing and cursor utilities", () => {
     expect(retryDelay(0, 0.5)).toBe(1000);
     expect(retryDelay(1, 0.5)).toBe(2000);
     expect(retryDelay(30, 0.5)).toBe(30000);
+    expect(retryDelay(30, 1)).toBeLessThanOrEqual(30000);
   });
   it("validates branch/event framing and ignores heartbeat/untrusted JSON", () => {
     expect(parseEmployeeFrame({ event: "heartbeat", id: null, data: "" })).toBeNull();
@@ -104,7 +110,6 @@ describe("authenticated SSE transport", () => {
       stop = () => connection.stop();
     });
     const event = await eventReceived;
-    stop?.();
     expect(event.eventType).toBe("call.created");
     expect(renew).toHaveBeenCalledTimes(1);
     expect(attempts).toHaveLength(2);
