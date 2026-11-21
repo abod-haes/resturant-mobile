@@ -19,7 +19,12 @@ export function acceptEmployeeEvent(
 ): EmployeeEventType | null {
   const parsed = eventSchema.safeParse(payload);
   if (!parsed.success || parsed.data.branchId !== branchId) return null;
-  const key = parsed.data.eventType + ":" + (parsed.data.eventId ?? parsed.data.callId);
+  // Expo push uses callId; SSE includes eventId and often the same callId in payload.
+  // Prefer callId for call events so a single business call cannot invalidate twice.
+  const identity = parsed.data.eventType === "call.created"
+    ? parsed.data.callId ?? parsed.data.eventId
+    : parsed.data.eventId ?? parsed.data.callId;
+  const key = parsed.data.eventType + ":" + identity;
   if (seen.has(key)) return null;
   seen.add(key);
   if (seen.size > 100) {

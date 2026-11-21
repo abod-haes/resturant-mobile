@@ -56,4 +56,12 @@ export const strings = {
   notificationMissingProject: "يجب إعداد Expo EAS Project ID قبل استخراج رمز الإشعارات.",
   notificationRegistered: "تم تسجيل الجهاز لدى المطعم. وصول الإشعار والصوت يعتمد على إعدادات النظام والاتصال.",
   enableNotifications: "تفعيل الإشعارات على هذا الجهاز",
+  registeredDevices: "الأجهزة المسجّلة",
+  noRegisteredDevices: "لا توجد أجهزة مسجّلة حالياً.",
+  removeDevice: "حذف الجهاز",
+  removeDeviceTitle: "إلغاء تسجيل الجهاز",
+  removeDeviceConfirmation: "هل تريد إلغاء تسجيل هذا الجهاز؟ سيتوقف تلقي التنبيهات على هذا الجهاز بعد نجاح الإلغاء.",
+  deviceRemoved: "تم إلغاء تسجيل الجهاز.",
+  deviceLastSeen: "آخر اتصال",
+  cancel: "إلغاء",
 } as const;

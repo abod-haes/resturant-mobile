@@ -13,7 +13,7 @@ export default function Home() {
   if (status === "guest") return <Redirect href="/sign-in" />;
   if (status === "authenticated" && user?.mustChangePassword)
     return <Redirect href="/change-password" />;
-  if (status === "authenticated") return <EmployeeHomeScreen footer={<NotificationPanel />} />;
+  if (status === "authenticated") return <EmployeeHomeScreen footer={<NotificationPanel employeeId={user?.id ?? null} />} />;
   return (
     <View style={[styles.center, { backgroundColor: colors.background }]}>
       <Feedback
