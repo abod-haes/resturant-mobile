@@ -6,3 +6,6 @@ coverage/
 .env.*
 !.env.example
 .DS_Store
+
+# Generated from the locked executable OpenAPI snapshot
+src/shared/api/generated/restaurant.d.ts

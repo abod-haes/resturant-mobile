@@ -11,7 +11,9 @@
     "check:architecture": "node scripts/check-boundaries.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "check:config": "expo config --type public"
+    "check:config": "expo config --type public",
+    "api:generate": "openapi-typescript contracts/employee.openapi.json -o src/shared/api/generated/restaurant.d.ts",
+    "api:check": "node scripts/api-contract.mjs check"
   },
   "dependencies": {
     "expo": "~54.0.0",
@@ -31,6 +33,7 @@
   "devDependencies": {
     "@types/react": "~19.1.0",
     "typescript": "~5.9.2",
-    "vitest": "^3.2.0"
+    "vitest": "^3.2.0",
+    "openapi-typescript": "7.10.1"
   }
 }
