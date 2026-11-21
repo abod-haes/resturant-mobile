@@ -1,7 +1,7 @@
 # Employee mobile Phase 5 — Responsive layout, RTL, dark/light and accessibility
 
 ## Scope & architecture
-- Shared pure `resolveAppLayout(width,fontScale)` drives compact/narrow layouts and padding; the hook `useAppLayout` reads React Native window width and font scale. System Text/TextInput scaling stays enabled for meaningful text. **Do not scale fontSize twice, cap it, or use `adjustsFontSizeToFit`.** The decorative non-informational R mark is the only font-scaling exception.
+- Shared pure `resolveAppLayout(width,fontScale)` drives compact/narrow layouts and padding; the runtime hook `useAppLayout` (separate file) reads React Native window width and font scale. System Text/TextInput scaling stays enabled for meaningful text. **Do not scale fontSize twice, cap it, or use `adjustsFontSizeToFit`.** The decorative non-informational R mark is the only font-scaling exception.
 - `colorPalettes` is the single light/dark source. Light `muted` was darkened to meet minimum 4.5:1 text contrast on surface, surfaceAlt and background. CI tests all representative semantic text/background pairs.
 - `typeScale`, `spacing`, `radius` and `layoutTokens` provide reusable customization without literal values scattered across features.
 - Shared `AppScreen` owns both safe-area and the OfflineBanner for every route, preventing a root-level double top inset while offline. Root navigator owns providers only.

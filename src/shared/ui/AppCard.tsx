@@ -2,7 +2,7 @@ import type { PropsWithChildren } from "react";
 import { View, StyleSheet } from "react-native";
 import type { StyleProp, ViewStyle } from "react-native";
 import { radius, spacing, useAppTheme } from "../config/theme";
-import { useAppLayout } from "../config/layout";
+import { useAppLayout } from "../config/useAppLayout";
 
 /** Uniform themeable card; compact padding follows screen width AND font scaling. */
 export function AppCard({ children, style }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {

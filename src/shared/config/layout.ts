@@ -1,5 +1,3 @@
-import { useWindowDimensions } from "react-native";
-
 /** Layout responds to both physical width and the user's system text size. */
 export const layoutTokens = {
   compactWidth: 420,
@@ -43,7 +41,3 @@ export function resolveAppLayout(width: number, fontScale = 1): AppLayout {
   };
 }
 
-export function useAppLayout(): AppLayout {
-  const { width, fontScale } = useWindowDimensions();
-  return resolveAppLayout(width, fontScale);
-}

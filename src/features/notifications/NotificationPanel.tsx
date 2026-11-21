@@ -8,7 +8,7 @@ import { ApiError } from "../../shared/api";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
-import { useAppLayout } from "../../shared/config/layout";
+import { useAppLayout } from "../../shared/config/useAppLayout";
 import { strings } from "../../shared/config/strings";
 import { prepareNotifications, type PreparationResult } from "./runtime";
 import { usePushDevices } from "./usePushDevices";

@@ -7,7 +7,7 @@ import type { ServiceCall } from "../../shared/api";
 import { isMockMode } from "../../shared/api";
 import { strings } from "../../shared/config/strings";
 import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
-import { useAppLayout } from "../../shared/config/layout";
+import { useAppLayout } from "../../shared/config/useAppLayout";
 import { AppButton } from "../../shared/ui/AppButton";
 import { Feedback } from "../../shared/ui/Feedback";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";

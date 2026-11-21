@@ -10,7 +10,7 @@ import type { AppField, FieldErrors } from "../../shared/api/error-presentation"
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
 import { spacing, typeScale, useAppTheme } from "../../shared/config/theme";
-import { useAppLayout } from "../../shared/config/layout";
+import { useAppLayout } from "../../shared/config/useAppLayout";
 import { strings } from "../../shared/config/strings";
 import { useSession } from "./SessionProvider";
 
