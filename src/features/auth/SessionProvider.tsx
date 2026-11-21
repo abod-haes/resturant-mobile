@@ -93,12 +93,22 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }, [queryClient]);
 
   const signOut = useCallback(async () => {
-    const credential = await SecureStore.getItemAsync(REFRESH_KEY);
-    let remoteFailed = false;
-    if (credential) {
-      try { await employeeApi.logout(credential); } catch { remoteFailed = true; }
+    let credential: string | null = null;
+    try {
+      credential = await SecureStore.getItemAsync(REFRESH_KEY);
+    } finally {
+      // Revoke UI access and invalidate refresh generation BEFORE remote I/O.
+      // Never leave the user authenticated while the network logout hangs.
+      await clearLocal();
     }
-    await clearLocal(remoteFailed ? strings.logoutOffline : null);
+    if (credential) {
+      try {
+        await employeeApi.logout(credential);
+      } catch {
+        setSession((current) => current.status === "guest"
+          ? { ...current, notice: strings.logoutOffline } : current);
+      }
+    }
   }, [clearLocal]);
 
   const changePassword = useCallback(async (input: ChangePasswordInput) => {
