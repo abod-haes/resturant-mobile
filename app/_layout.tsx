@@ -5,7 +5,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { QueryLifecycle } from "../src/shared/api/query-lifecycle";
 import { canRetryRead } from "../src/shared/api/errors";
-import { OfflineBanner } from "../src/shared/ui/OfflineBanner";
 import { FeedbackProvider } from "../src/shared/ui/AppToast";
 import { SessionProvider, useSession } from "../src/features/auth";
 import { NotificationCoordinator } from "../src/features/notifications";
@@ -33,14 +32,13 @@ export default function RootLayout() {
         <SessionProvider>
           <QueryLifecycle />
           <StatusBar style="auto" />
-          <OfflineBanner />
           <FeedbackProvider>
             <AuthenticatedServices />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="sign-in" />
-            <Stack.Screen name="change-password" />
-          </Stack>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="sign-in" />
+              <Stack.Screen name="change-password" />
+            </Stack>
           </FeedbackProvider>
         </SessionProvider>
       </QueryClientProvider>

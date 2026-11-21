@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { FlatList, RefreshControl, Text, View, StyleSheet } from "react-native";
 import type { ListRenderItemInfo } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { AppScreen } from "../../shared/ui/AppScreen";
 import type { ServiceCall } from "../../shared/api";
 import { isMockMode } from "../../shared/api";
 import { strings } from "../../shared/config/strings";
@@ -111,7 +111,7 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
     <AppErrorNotice error={feed.query.error} context="calls" variant="screen"
       onRetry={() => void feed.query.refetch()} />
   ) : (
-    <View style={[styles.empty, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+    <View style={[styles.empty, { backgroundColor: colors.surface, borderColor: colors.border, padding: layout.cardPadding }]}>
       <Text style={[styles.emptyTitle, { color: colors.text }]}>{strings.emptyCalls}</Text>
       <Text style={[styles.emptyHint, { color: colors.muted }]}>{strings.emptyCallsHint}</Text>
     </View>
@@ -139,7 +139,7 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   );
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
+    <AppScreen>
       <FlatList
         ref={list}
         data={feed.calls}
@@ -166,14 +166,13 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
         keyboardShouldPersistTaps="handled"
         accessibilityLabel={strings.callsTitle}
       />
-    </SafeAreaView>
+    </AppScreen>
   );
 }
 function CallSeparator() {
   return <View style={styles.separator} />;
 }
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
   content: {
     width: "100%", minWidth: 0, alignSelf: "center",
     paddingTop: spacing.md, paddingBottom: spacing.huge, flexGrow: 1,
@@ -196,7 +195,7 @@ const styles = StyleSheet.create({
   counterText: { fontSize: typeScale.meta, fontWeight: "800" },
   separator: { height: spacing.md },
   footer: { gap: spacing.md, paddingTop: spacing.lg },
-  empty: { borderRadius: radius.lg, borderWidth: 1, padding: spacing.huge, gap: spacing.sm },
+  empty: { borderRadius: radius.lg, borderWidth: 1, gap: spacing.sm },
   emptyTitle: { fontSize: typeScale.cardTitle, fontWeight: "800", textAlign: "center" },
   emptyHint: { fontSize: typeScale.meta, textAlign: "center" },
 });

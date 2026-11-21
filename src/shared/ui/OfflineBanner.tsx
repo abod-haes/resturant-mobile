@@ -1,6 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { Text, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, StyleSheet } from "react-native";
 import { onlineManager } from "@tanstack/react-query";
 import { feedbackText } from "../i18n/feedback";
 import { spacing, typeScale, useAppTheme } from "../config/theme";
@@ -9,17 +8,16 @@ const subscribeOnline = (callback: () => void) => onlineManager.subscribe(callba
 const isOnline = () => onlineManager.isOnline();
 const serverSnapshot = () => true;
 
-/** Network banner is inset below a device notch/status bar, not obscured by it. */
+/** AppScreen owns safe area; banner stays inside the screen content bounds. */
 export function OfflineBanner() {
   const online = useSyncExternalStore(subscribeOnline, isOnline, serverSnapshot);
   const { colors } = useAppTheme();
   if (online) return null;
   return (
-    <SafeAreaView edges={["top"]}
-      style={[styles.banner, { backgroundColor: colors.dangerSurface, borderColor: colors.border }]}>
+    <View style={[styles.banner, { backgroundColor: colors.dangerSurface, borderColor: colors.border }]}>
       <Text accessibilityRole="alert" accessibilityLiveRegion="polite" allowFontScaling
         style={[styles.text, { color: colors.danger }]}>{feedbackText("offline")}</Text>
-    </SafeAreaView>
+    </View>
   );
 }
 const styles = StyleSheet.create({
