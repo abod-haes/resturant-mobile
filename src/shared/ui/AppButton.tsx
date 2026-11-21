@@ -10,6 +10,7 @@ type Props = {
   disabled?: boolean;
   loading?: boolean;
   accessibilityHint?: string;
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 };
@@ -17,7 +18,7 @@ type Props = {
 /** The touch target and label grow with system text settings; never truncate CTAs. */
 export function AppButton({
   title, onPress, variant = "primary", disabled = false, loading = false,
-  accessibilityHint, style, testID,
+  accessibilityHint, accessibilityLabel, style, testID,
 }: Props) {
   const { colors } = useAppTheme();
   const backgroundColor = variant === "primary"
@@ -30,7 +31,7 @@ export function AppButton({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={title}
+      accessibilityLabel={accessibilityLabel ?? title}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       testID={testID}
