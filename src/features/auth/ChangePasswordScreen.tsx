@@ -60,7 +60,7 @@ export function ChangePasswordScreen() {
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView style={styles.safe} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView contentContainerStyle={[styles.content, { padding: layout.formPadding, maxWidth: layout.maxFormWidth }]}
-          keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}>
+          keyboardShouldPersistTaps="handled">
           <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>{strings.changePassword}</Text>
           <Text style={[styles.hint, { color: colors.muted }]}>{strings.changePasswordHint}</Text>
           <AppCard style={styles.form}>

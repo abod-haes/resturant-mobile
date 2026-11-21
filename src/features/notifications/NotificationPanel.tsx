@@ -7,7 +7,8 @@ import { useFeedback } from "../../shared/ui/AppToast";
 import { ApiError } from "../../shared/api";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
-import { spacing, radius, useAppTheme } from "../../shared/config/theme";
+import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
+import { useAppLayout } from "../../shared/config/layout";
 import { strings } from "../../shared/config/strings";
 import { prepareNotifications, type PreparationResult } from "./runtime";
 import { usePushDevices } from "./usePushDevices";
@@ -16,6 +17,7 @@ type Status = "idle" | "loading" | PreparationResult | "error";
 
 export function NotificationPanel({ employeeId }: { employeeId: string | null }) {
   const { colors } = useAppTheme();
+  const layout = useAppLayout();
   const { showToast } = useFeedback();
   const { devices, remove, refresh } = usePushDevices(employeeId);
   const [status, setStatus] = useState<Status>("idle");
@@ -71,7 +73,7 @@ export function NotificationPanel({ employeeId }: { employeeId: string | null })
   return (
     <AppCard>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>{strings.notificationTitle}</Text>
+        <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>{strings.notificationTitle}</Text>
         {statusMessages[status] && (
           <Text style={[styles.message, { color: colors.muted }]}>{statusMessages[status]}</Text>
         )}
@@ -85,7 +87,7 @@ export function NotificationPanel({ employeeId }: { employeeId: string | null })
         disabled={status === "registered" || cooldown > 0 || !employeeId}
       />
       <View style={styles.deviceSection}>
-        <Text style={[styles.listTitle, { color: colors.text }]}>{strings.registeredDevices}</Text>
+        <Text accessibilityRole="header" style={[styles.listTitle, { color: colors.text }]}>{strings.registeredDevices}</Text>
         {devices.isPending ? (
           <Text style={[styles.message, { color: colors.muted }]}>{strings.loading}</Text>
         ) : devices.isError ? (
@@ -94,8 +96,8 @@ export function NotificationPanel({ employeeId }: { employeeId: string | null })
           <Text style={[styles.message, { color: colors.muted }]}>{strings.noRegisteredDevices}</Text>
         ) : (
           devices.data.map((device) => (
-            <View key={device.id} style={[styles.device, { borderColor: colors.border }]}>
-              <View style={styles.deviceText}>
+            <View key={device.id} style={[styles.device, layout.compact && styles.compactDevice, { borderColor: colors.border }]}>
+              <View style={[styles.deviceText, layout.compact && styles.compactDeviceText]}>
                 <Text style={[styles.deviceName, { color: colors.text }]}>
                   {device.platform === "ios" ? "iOS" : "Android"} · {device.id.slice(-6)}
                 </Text>
@@ -106,6 +108,8 @@ export function NotificationPanel({ employeeId }: { employeeId: string | null })
               {Platform.OS !== "web" && (
                 <AppButton
                   title={strings.removeDevice}
+                  accessibilityLabel={strings.removeDevice + ": " + device.platform + " " + device.id.slice(-6)}
+                  style={layout.compact ? styles.compactDeviceButton : undefined}
                   variant="danger"
                   onPress={() => askRemove(device.id)}
                   loading={remove.isPending && remove.variables === device.id}
@@ -122,9 +126,9 @@ export function NotificationPanel({ employeeId }: { employeeId: string | null })
 }
 const styles = StyleSheet.create({
   header: { gap: spacing.sm },
-  title: { fontWeight: "800", fontSize: 16, textAlign: "right" },
-  message: { fontSize: 13, lineHeight: 22, textAlign: "right" },
-  listTitle: { fontSize: 14, fontWeight: "800", textAlign: "right" },
+  title: { fontWeight: "800", fontSize: typeScale.cardTitle, textAlign: "right" },
+  message: { fontSize: typeScale.meta, textAlign: "right" },
+  listTitle: { fontSize: typeScale.body, fontWeight: "800", textAlign: "right" },
   deviceSection: { gap: spacing.md, paddingTop: spacing.sm },
   device: {
     flexDirection: "row-reverse", flexWrap: "wrap", gap: spacing.sm,
@@ -132,6 +136,9 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderRadius: radius.sm, padding: spacing.md,
   },
   deviceText: { flex: 1, minWidth: 140, alignItems: "flex-end", gap: spacing.xs },
-  deviceName: { fontSize: 14, fontWeight: "700", textAlign: "right" },
-  deviceDate: { fontSize: 12, textAlign: "right" },
+  compactDevice: { flexDirection: "column", alignItems: "stretch" },
+  compactDeviceText: { flex: 0, minWidth: 0, width: "100%" },
+  compactDeviceButton: { width: "100%" },
+  deviceName: { fontSize: typeScale.body, fontWeight: "700", textAlign: "right", flexShrink: 1 },
+  deviceDate: { fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
 });

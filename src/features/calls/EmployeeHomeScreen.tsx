@@ -1,12 +1,13 @@
 import { useCallback, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { FlatList, RefreshControl, Text, View, StyleSheet, useWindowDimensions } from "react-native";
+import { FlatList, RefreshControl, Text, View, StyleSheet } from "react-native";
 import type { ListRenderItemInfo } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { ServiceCall } from "../../shared/api";
 import { isMockMode } from "../../shared/api";
 import { strings } from "../../shared/config/strings";
-import { spacing, radius, useAppTheme } from "../../shared/config/theme";
+import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
+import { useAppLayout } from "../../shared/config/layout";
 import { AppButton } from "../../shared/ui/AppButton";
 import { Feedback } from "../../shared/ui/Feedback";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
@@ -21,7 +22,7 @@ import type { CallFilter } from "./model";
 export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   const { user, signOut } = useSession();
   const { colors } = useAppTheme();
-  const { width } = useWindowDimensions();
+  const layout = useAppLayout();
   const list = useRef<FlatList<ServiceCall>>(null);
   const hasScrolled = useRef(false);
   const [logoutError, setLogoutError] = useState<unknown>(null);
@@ -63,19 +64,20 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
 
   const listHeader = (
     <View style={styles.headerSections}>
-      <View style={styles.header}>
-        <View style={styles.profile}>
+      <View style={[styles.header, layout.compact && styles.compactHeader]}>
+        <View style={[styles.profile, layout.compact && styles.compactProfile]}>
           <Text style={[styles.eyebrow, { color: colors.primary }]}>
             {isMockMode ? strings.mockBadge : strings.appName}
           </Text>
-          <Text style={[styles.title, { color: colors.text }]}>
+          <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>
             {strings.welcome}، {user?.name ?? user?.username ?? "موظف"}
           </Text>
           <Text style={[styles.subtitle, { color: colors.muted }]}>
             {user?.department === "hookah" ? strings.hookahDepartment : strings.waiterDepartment}
           </Text>
         </View>
-        <AppButton title={strings.logout} onPress={() => void logout()} variant="secondary" />
+        <AppButton title={strings.logout} onPress={() => void logout()} variant="secondary"
+          style={layout.compact ? styles.fullWidthAction : undefined} />
       </View>
       <AppErrorNotice error={logoutError} />
       <ShiftPanel
@@ -88,10 +90,11 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
       />
       <View style={styles.sectionHeading}>
         <View style={[styles.counter, { backgroundColor: colors.surfaceAlt }]}>
-          <Text style={[styles.counterText, { color: colors.primary }]}>{feed.calls.length}</Text>
+          <Text accessibilityLabel={strings.displayedCallsCount + ": " + feed.calls.length}
+            style={[styles.counterText, { color: colors.primary }]}>{feed.calls.length}</Text>
         </View>
         <View style={styles.sectionText}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{strings.callsTitle}</Text>
+          <Text accessibilityRole="header" style={[styles.sectionTitle, { color: colors.text }]}>{strings.callsTitle}</Text>
           <Text style={[styles.sectionDescription, { color: colors.muted }]}>
             {strings.displayedCallsCount}: {feed.calls.length} · {strings.callsSubtitle}
           </Text>
@@ -148,7 +151,7 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
         ListFooterComponent={listFooter}
         contentContainerStyle={[
           styles.content,
-          { paddingHorizontal: width < 360 ? spacing.md : spacing.xl },
+          { paddingHorizontal: layout.contentPadding, maxWidth: layout.maxContentWidth },
         ]}
         refreshControl={
           <RefreshControl refreshing={feed.refreshing || shifts.shift.isRefetching}
@@ -172,25 +175,28 @@ function CallSeparator() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: {
-    width: "100%", maxWidth: 760, alignSelf: "center",
+    width: "100%", minWidth: 0, alignSelf: "center",
     paddingTop: spacing.md, paddingBottom: spacing.huge, flexGrow: 1,
   },
   headerSections: { gap: spacing.lg, paddingBottom: spacing.lg },
   header: { flexDirection: "row-reverse", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: spacing.md, paddingTop: spacing.lg, paddingBottom: spacing.md },
   profile: { flex: 1, minWidth: 155, alignItems: "flex-end", gap: spacing.xs },
+  compactHeader: { flexDirection: "column", alignItems: "stretch" },
+  compactProfile: { flex: 0, minWidth: 0, width: "100%" },
+  fullWidthAction: { width: "100%", alignSelf: "stretch" },
   eyebrow: { fontSize: 12, fontWeight: "800" },
-  title: { fontSize: 24, fontWeight: "800", textAlign: "right" },
-  subtitle: { fontSize: 13, textAlign: "right" },
-  sectionHeading: { flexDirection: "row-reverse", alignItems: "center", gap: spacing.md, paddingTop: spacing.md },
-  sectionText: { flex: 1, alignItems: "flex-end", gap: spacing.xs },
-  sectionTitle: { fontSize: 18, fontWeight: "800", textAlign: "right" },
-  sectionDescription: { fontSize: 12, textAlign: "right" },
-  filterTitle: { fontSize: 13, textAlign: "right", marginBottom: -spacing.sm },
-  counter: { minWidth: 36, height: 36, borderRadius: radius.sm, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.sm },
-  counterText: { fontSize: 13, fontWeight: "800" },
+  title: { fontSize: typeScale.title, fontWeight: "800", textAlign: "right", flexShrink: 1 },
+  subtitle: { fontSize: typeScale.meta, textAlign: "right", flexShrink: 1 },
+  sectionHeading: { flexDirection: "row-reverse", alignItems: "center", flexWrap: "wrap", gap: spacing.md, paddingTop: spacing.md },
+  sectionText: { flex: 1, minWidth: 0, alignItems: "flex-end", gap: spacing.xs },
+  sectionTitle: { fontSize: typeScale.sectionTitle, fontWeight: "800", textAlign: "right", flexShrink: 1 },
+  sectionDescription: { fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
+  filterTitle: { fontSize: typeScale.meta, textAlign: "right" },
+  counter: { minWidth: 36, minHeight: 36, borderRadius: radius.sm, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
+  counterText: { fontSize: typeScale.meta, fontWeight: "800" },
   separator: { height: spacing.md },
   footer: { gap: spacing.md, paddingTop: spacing.lg },
   empty: { borderRadius: radius.lg, borderWidth: 1, padding: spacing.huge, gap: spacing.sm },
-  emptyTitle: { fontSize: 16, fontWeight: "800", textAlign: "center" },
-  emptyHint: { fontSize: 13, textAlign: "center" },
+  emptyTitle: { fontSize: typeScale.cardTitle, fontWeight: "800", textAlign: "center" },
+  emptyHint: { fontSize: typeScale.meta, textAlign: "center" },
 });

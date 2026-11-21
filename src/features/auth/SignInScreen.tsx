@@ -57,7 +57,7 @@ export function SignInScreen() {
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView contentContainerStyle={[styles.content, { padding: layout.formPadding, maxWidth: layout.maxFormWidth }]}
-          keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}>
+          keyboardShouldPersistTaps="handled">
           <View accessible={false} importantForAccessibility="no-hide-descendants"
             style={[styles.mark, { backgroundColor: colors.primary }]}>
             <Text allowFontScaling={false} style={[styles.markText, { color: colors.onPrimary }]}>R</Text>
