@@ -79,7 +79,8 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="تسجيل الخروج" onPress={() => setLogoutOpen(true)}
           style={[styles.accountAction, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-          <Text style={[styles.accountIcon, { color: colors.text }]}>⇥</Text>
+          <Text style={[styles.accountIcon, { color: colors.text }]}>↪</Text>
+          <Text style={[styles.logoutLabel, { color: colors.text }]}>خروج</Text>
         </Pressable>
       </View>
       <AppErrorNotice error={logoutError} />
@@ -199,8 +200,9 @@ const styles = StyleSheet.create({
   compactHeader: { flexDirection: "column", alignItems: "stretch" },
   compactProfile: { flex: 0, minWidth: 0, width: "100%" },
   fullWidthAction: { width: "100%", alignSelf: "stretch" },
-  accountAction: { width: 44, height: 44, borderRadius: 14, borderWidth: 1, alignItems: "center", justifyContent: "center" },
-  accountIcon: { fontSize: 24, textAlign: "center", includeFontPadding: false },
+  accountAction: { minHeight: 44, minWidth: 82, paddingHorizontal: 12, borderRadius: 14, borderWidth: 1, flexDirection: "row", gap: 6, alignItems: "center", justifyContent: "center" },
+  accountIcon: { fontSize: 22, textAlign: "center", textAlignVertical: "center", includeFontPadding: false },
+  logoutLabel: { fontSize: typeScale.meta, fontWeight: "700", textAlignVertical: "center", includeFontPadding: false },
   modalBackdrop: { flex: 1, backgroundColor: "#0009", justifyContent: "center", padding: 24 },
   modalCard: { padding: 22, borderRadius: 22, borderWidth: 1, gap: 16, maxWidth: 440, width: "100%", alignSelf: "center" },
   modalTitle: { fontSize: 20, fontWeight: "700", textAlign: "right" },
