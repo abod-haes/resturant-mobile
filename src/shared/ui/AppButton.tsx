@@ -9,6 +9,7 @@ type Props = {
   variant?: "primary" | "secondary" | "danger";
   disabled?: boolean;
   loading?: boolean;
+  foregroundColor?: string;
   accessibilityHint?: string;
   accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
@@ -18,15 +19,15 @@ type Props = {
 /** The touch target and label grow with system text settings; never truncate CTAs. */
 export function AppButton({
   title, onPress, variant = "primary", disabled = false, loading = false,
-  accessibilityHint, accessibilityLabel, style, testID,
+  accessibilityHint, accessibilityLabel, style, testID, foregroundColor,
 }: Props) {
   const { colors } = useAppTheme();
   const backgroundColor = variant === "primary"
     ? colors.primary
     : variant === "danger" ? colors.dangerSurface : colors.surfaceAlt;
-  const foreground = variant === "primary"
+  const foreground = foregroundColor ?? (variant === "primary"
     ? colors.onPrimary
-    : variant === "danger" ? colors.danger : colors.text;
+    : variant === "danger" ? colors.danger : colors.text);
 
   return (
     <Pressable
