@@ -54,6 +54,7 @@ export function ShiftPanel({ shift, loading, changing, error, onToggle, onRetry 
           <AppButton
             title={active ? strings.endShift : strings.startShift}
             variant={active ? "secondary" : "primary"}
+            foregroundColor={active ? undefined : "#FFFFFF"}
             loading={changing}
             onPress={onToggle}
             disabled={shift === undefined || cooldown > 0}
