@@ -1,5 +1,6 @@
-import { Tabs } from "heroui-native/tabs";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { strings } from "../../shared/config/strings";
+import { radius, spacing, typeScale, useAppTheme } from "../../shared/config/theme";
 import type { CallFilter } from "./model";
 
 type Props = {
@@ -14,22 +15,70 @@ const options: readonly { value: CallFilter; label: string }[] = [
   { value: "hookah", label: strings.hookah },
 ];
 
-/** HeroUI Native controlled tabs; data filtering stays in useEmployeeCalls. */
+/** Transparent filter row; the selected pill uses the app's shared brand colors. */
 export function CallsFilter({ value, onChange, disabled = false }: Props) {
+  const { colors } = useAppTheme();
+
   return (
-    <Tabs value={value} onValueChange={(next) => onChange(next as CallFilter)} variant="primary">
-      <Tabs.List>
-        <Tabs.ScrollView horizontal showsHorizontalScrollIndicator={false} scrollAlign="center"
-          contentContainerClassName="flex-row-reverse items-center gap-1 px-1">
-          <Tabs.Indicator className="rounded-xl bg-primary" />
-          {options.map((option) => (
-            <Tabs.Trigger key={option.value} value={option.value} isDisabled={disabled}
-              accessibilityLabel={option.label} className="min-h-12 rounded-xl px-3">
-              <Tabs.Label className="text-center text-sm font-semibold">{option.label}</Tabs.Label>
-            </Tabs.Trigger>
-          ))}
-        </Tabs.ScrollView>
-      </Tabs.List>
-    </Tabs>
+    <View style={styles.container}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.options}
+        accessibilityRole="tablist"
+      >
+        {options.map((option) => {
+          const selected = value === option.value;
+          return (
+            <Pressable
+              key={option.value}
+              accessibilityRole="tab"
+              accessibilityLabel={option.label}
+              accessibilityState={{ selected, disabled }}
+              disabled={disabled}
+              onPress={() => onChange(option.value)}
+              style={({ pressed }) => [
+                styles.tab,
+                selected && { backgroundColor: colors.primary },
+                pressed && !disabled && { opacity: 0.78 },
+                disabled && { opacity: 0.5 },
+              ]}
+            >
+              <Text
+                allowFontScaling
+                style={[styles.label, { color: selected ? colors.onPrimary : colors.text }]}
+              >
+                {option.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { backgroundColor: "transparent" },
+  options: {
+    flexDirection: "row-reverse",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  tab: {
+    minHeight: 48,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "transparent",
+  },
+  label: {
+    fontSize: typeScale.body,
+    fontWeight: "700",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+});
