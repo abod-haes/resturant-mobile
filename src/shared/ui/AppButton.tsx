@@ -60,11 +60,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
     gap: spacing.sm,
   },
   title: {
     fontSize: typeScale.control, fontWeight: "700",
-    textAlign: "center", flexShrink: 1,
+    textAlign: "center", textAlignVertical: "center", includeFontPadding: false,
+    lineHeight: 24, flexShrink: 1,
   },
 });
