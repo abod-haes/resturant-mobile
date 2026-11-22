@@ -68,8 +68,8 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
 
   const listHeader = (
     <View style={styles.headerSections}>
-      <View style={[styles.header, layout.compact && styles.compactHeader]}>
-        <View style={[styles.profile, layout.compact && styles.compactProfile]}>
+      <View style={styles.header}>
+        <View style={styles.profile}>
           <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>
             {strings.welcome}، {user?.name ?? user?.username ?? "موظف"}
           </Text>
@@ -77,9 +77,9 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
             {user?.department === "hookah" ? strings.hookahDepartment : strings.waiterDepartment}
           </Text>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="خيارات الحساب وتسجيل الخروج" onPress={() => setLogoutOpen(true)}
+        <Pressable accessibilityRole="button" accessibilityLabel="تسجيل الخروج" onPress={() => setLogoutOpen(true)}
           style={[styles.accountAction, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
-          <Text style={[styles.accountIcon, { color: colors.text }]}>⚙</Text>
+          <Text style={[styles.accountIcon, { color: colors.text }]}>⇥</Text>
         </Pressable>
       </View>
       <AppErrorNotice error={logoutError} />
@@ -193,13 +193,13 @@ const styles = StyleSheet.create({
     width: "100%", minWidth: 0, alignSelf: "center",
     paddingTop: spacing.md, paddingBottom: spacing.huge, flexGrow: 1,
   },
-  headerSections: { gap: spacing.lg, paddingBottom: spacing.lg },
-  header: { flexDirection: "row-reverse", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: spacing.md, paddingTop: spacing.lg, paddingBottom: spacing.md },
-  profile: { flex: 1, minWidth: 155, alignItems: "flex-end", gap: spacing.xs },
+  headerSections: { gap: spacing.md, paddingBottom: spacing.md },
+  header: { flexDirection: "row-reverse", justifyContent: "space-between", alignItems: "center", gap: spacing.sm, paddingTop: spacing.sm, paddingBottom: 0, minHeight: 52 },
+  profile: { flex: 1, minWidth: 0, alignItems: "flex-end", justifyContent: "center" },
   compactHeader: { flexDirection: "column", alignItems: "stretch" },
   compactProfile: { flex: 0, minWidth: 0, width: "100%" },
   fullWidthAction: { width: "100%", alignSelf: "stretch" },
-  accountAction: { width: 46, height: 46, borderRadius: 23, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+  accountAction: { width: 44, height: 44, borderRadius: 14, borderWidth: 1, alignItems: "center", justifyContent: "center" },
   accountIcon: { fontSize: 24, textAlign: "center", includeFontPadding: false },
   modalBackdrop: { flex: 1, backgroundColor: "#0009", justifyContent: "center", padding: 24 },
   modalCard: { padding: 22, borderRadius: 22, borderWidth: 1, gap: 16, maxWidth: 440, width: "100%", alignSelf: "center" },
