@@ -1,6 +1,4 @@
-import { Pressable, Text, View, StyleSheet } from "react-native";
-import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
-import { layoutTokens } from "../../shared/config/layout";
+import { Tabs } from "heroui-native/tabs";
 import { strings } from "../../shared/config/strings";
 import type { CallFilter } from "./model";
 
@@ -16,48 +14,22 @@ const options: readonly { value: CallFilter; label: string }[] = [
   { value: "hookah", label: strings.hookah },
 ];
 
+/** HeroUI Native controlled tabs; data filtering stays in useEmployeeCalls. */
 export function CallsFilter({ value, onChange, disabled = false }: Props) {
-  const { colors } = useAppTheme();
   return (
-    <View accessibilityRole="radiogroup" accessibilityLabel={strings.callsFilterLabel} style={styles.container}>
-      {options.map((item) => {
-        const selected = item.value === value;
-        return (
-          <Pressable
-            key={item.value}
-            onPress={() => onChange(item.value)}
-            disabled={disabled}
-            accessibilityRole="radio"
-            accessibilityLabel={item.label}
-            accessibilityState={{ selected, disabled }}
-            style={({ pressed }) => [
-              styles.option,
-              {
-                backgroundColor: selected ? colors.primary : colors.surface,
-                borderColor: selected ? colors.primary : colors.border,
-                opacity: disabled ? 0.5 : pressed ? 0.8 : 1,
-              },
-            ]}
-          >
-            <Text allowFontScaling style={[styles.label, { color: selected ? colors.onPrimary : colors.text }]}>
-              {item.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
+    <Tabs value={value} onValueChange={(next) => onChange(next as CallFilter)} variant="primary">
+      <Tabs.List>
+        <Tabs.ScrollView horizontal showsHorizontalScrollIndicator={false} scrollAlign="center"
+          contentContainerClassName="flex-row-reverse items-center gap-1 px-1">
+          <Tabs.Indicator className="rounded-xl bg-primary" />
+          {options.map((option) => (
+            <Tabs.Trigger key={option.value} value={option.value} isDisabled={disabled}
+              accessibilityLabel={option.label} className="min-h-12 rounded-xl px-3">
+              <Tabs.Label className="text-center text-sm font-semibold">{option.label}</Tabs.Label>
+            </Tabs.Trigger>
+          ))}
+        </Tabs.ScrollView>
+      </Tabs.List>
+    </Tabs>
   );
 }
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row-reverse", flexWrap: "wrap",
-    alignItems: "center", gap: spacing.sm,
-  },
-  option: {
-    minHeight: layoutTokens.minTouchTarget, minWidth: 72, maxWidth: "100%",
-    justifyContent: "center", alignItems: "center",
-    borderWidth: 1, borderRadius: radius.md,
-    paddingVertical: spacing.sm, paddingHorizontal: spacing.md,
-  },
-  label: { fontSize: typeScale.meta, fontWeight: "700", textAlign: "center", flexShrink: 1 },
-});
