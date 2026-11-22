@@ -1,6 +1,5 @@
 import { Tabs } from "heroui-native/tabs";
 import { strings } from "../../shared/config/strings";
-import { colorPalettes } from "../../shared/config/palettes";
 import { spacing, typeScale, useAppTheme } from "../../shared/config/theme";
 import type { CallFilter } from "./model";
 
@@ -39,7 +38,7 @@ export function CallsFilter({ value, onChange, disabled = false }: Props) {
       >
         <Tabs.Indicator
           className="rounded-xl"
-          style={{ backgroundColor: colorPalettes.light.primary }}
+          style={{ backgroundColor: colors.primary }}
         />
         {options.map((option) => (
           <Tabs.Trigger
