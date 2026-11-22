@@ -9,11 +9,11 @@ import { strings } from "../../shared/config/strings";
 import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
 import { useAppLayout } from "../../shared/config/useAppLayout";
 import { AppButton } from "../../shared/ui/AppButton";
-import { Feedback } from "../../shared/ui/Feedback";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
 import { useSession } from "../auth";
 import { ShiftPanel, useShiftActions } from "../shifts";
 import { CallCard } from "./CallCard";
+import { CallCardsSkeleton } from "./CallCardsSkeleton";
 import { CallsFilter } from "./CallsFilter";
 import { useEmployeeCalls } from "./useEmployeeCalls";
 import type { CallFilter } from "./model";
@@ -112,7 +112,7 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   );
 
   const listEmpty = feed.query.isPending ? (
-    <Feedback message={strings.loading} loading />
+    <CallCardsSkeleton />
   ) : feed.query.isError ? (
     <AppErrorNotice error={feed.query.error} context="calls" variant="screen"
       onRetry={() => void feed.query.refetch()} />
@@ -133,10 +133,10 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
         <AppErrorNotice error={feed.query.error} context="calls"
           onRetry={() => void feed.query.refetch()} />
       )}
-      {feed.query.hasNextPage && (
-        <AppButton title={feed.query.isFetchingNextPage ? strings.callsMoreLoading : strings.more}
+      {feed.query.isFetchingNextPage && <CallCardsSkeleton count={2} />}
+      {feed.query.hasNextPage && !feed.query.isFetchingNextPage && (
+        <AppButton title={strings.more}
           variant="secondary"
-          loading={feed.query.isFetchingNextPage}
           disabled={feed.query.isFetching}
           onPress={feed.loadMore} />
       )}
