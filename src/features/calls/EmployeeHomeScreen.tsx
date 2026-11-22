@@ -1,10 +1,9 @@
 import { useCallback, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { FlatList, RefreshControl, Text, View, StyleSheet } from "react-native";
+import { FlatList, RefreshControl, Text, View, StyleSheet, Pressable, Modal, ActivityIndicator } from "react-native";
 import type { ListRenderItemInfo } from "react-native";
 import { AppScreen } from "../../shared/ui/AppScreen";
 import type { ServiceCall } from "../../shared/api";
-import { isMockMode } from "../../shared/api";
 import { strings } from "../../shared/config/strings";
 import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
 import { useAppLayout } from "../../shared/config/useAppLayout";
@@ -17,6 +16,7 @@ import { CallCard } from "./CallCard";
 import { CallsFilter } from "./CallsFilter";
 import { useEmployeeCalls } from "./useEmployeeCalls";
 import type { CallFilter } from "./model";
+import { NotificationPermissionPrompt } from "../notifications/NotificationPermissionPrompt";
 
 /** Composition only: server state/actions live in feature hooks, not the screen. */
 export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
@@ -26,6 +26,8 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   const list = useRef<FlatList<ServiceCall>>(null);
   const hasScrolled = useRef(false);
   const [logoutError, setLogoutError] = useState<unknown>(null);
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const shifts = useShiftActions(user?.id);
   const feed = useEmployeeCalls(user?.id);
   const { filter, setFilter, refresh: refreshCalls, loadMore } = feed;
@@ -56,21 +58,18 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   const keyCall = useCallback((call: ServiceCall) => call.id, []);
 
   async function logout() {
+    if (loggingOut) return;
+    setLoggingOut(true);
     setLogoutError(null);
-    try {
-      await signOut();
-    } catch (error) {
-      setLogoutError(error);
-    }
+    try { await signOut(); setLogoutOpen(false); }
+    catch (error) { setLogoutError(error); }
+    finally { setLoggingOut(false); }
   }
 
   const listHeader = (
     <View style={styles.headerSections}>
       <View style={[styles.header, layout.compact && styles.compactHeader]}>
         <View style={[styles.profile, layout.compact && styles.compactProfile]}>
-          <Text style={[styles.eyebrow, { color: colors.primary }]}>
-            {isMockMode ? strings.mockBadge : strings.appName}
-          </Text>
           <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>
             {strings.welcome}، {user?.name ?? user?.username ?? "موظف"}
           </Text>
@@ -78,10 +77,13 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
             {user?.department === "hookah" ? strings.hookahDepartment : strings.waiterDepartment}
           </Text>
         </View>
-        <AppButton title={strings.logout} onPress={() => void logout()} variant="secondary"
-          style={layout.compact ? styles.fullWidthAction : undefined} />
+        <Pressable accessibilityRole="button" accessibilityLabel="خيارات الحساب وتسجيل الخروج" onPress={() => setLogoutOpen(true)}
+          style={[styles.accountAction, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+          <Text style={[styles.accountIcon, { color: colors.text }]}>⚙</Text>
+        </Pressable>
       </View>
       <AppErrorNotice error={logoutError} />
+      <NotificationPermissionPrompt />
       <ShiftPanel
         shift={shifts.shift.data}
         loading={shifts.shift.isLoading}
@@ -142,6 +144,18 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
 
   return (
     <AppScreen>
+      <Modal visible={logoutOpen} transparent animationType="fade" onRequestClose={() => setLogoutOpen(false)}>
+        <View style={styles.modalBackdrop}><View style={[styles.modalCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.modalTitle, { color: colors.text }]}>تسجيل الخروج</Text>
+          <Text style={[styles.modalDescription, { color: colors.muted }]}>هل أنت متأكد أنك تريد تسجيل الخروج من حسابك؟</Text>
+          <View style={styles.modalActions}>
+            <View style={styles.modalButton}><AppButton title="إلغاء" variant="secondary" disabled={loggingOut} onPress={() => setLogoutOpen(false)} /></View>
+            <View style={styles.modalButton}><AppButton title={loggingOut ? "جارٍ الخروج..." : "تأكيد الخروج"} disabled={loggingOut} onPress={() => void logout()} /></View>
+          </View>
+          {loggingOut && <ActivityIndicator color={colors.primary} />}
+          <AppErrorNotice error={logoutError} />
+        </View></View>
+      </Modal>
       <FlatList
         ref={list}
         data={feed.calls}
@@ -185,7 +199,14 @@ const styles = StyleSheet.create({
   compactHeader: { flexDirection: "column", alignItems: "stretch" },
   compactProfile: { flex: 0, minWidth: 0, width: "100%" },
   fullWidthAction: { width: "100%", alignSelf: "stretch" },
-  eyebrow: { fontSize: 12, fontWeight: "800" },
+  accountAction: { width: 46, height: 46, borderRadius: 23, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+  accountIcon: { fontSize: 24, textAlign: "center", includeFontPadding: false },
+  modalBackdrop: { flex: 1, backgroundColor: "#0009", justifyContent: "center", padding: 24 },
+  modalCard: { padding: 22, borderRadius: 22, borderWidth: 1, gap: 16, maxWidth: 440, width: "100%", alignSelf: "center" },
+  modalTitle: { fontSize: 20, fontWeight: "700", textAlign: "right" },
+  modalDescription: { fontSize: 14, lineHeight: 23, textAlign: "right" },
+  modalActions: { flexDirection: "row", gap: 10 },
+  modalButton: { flex: 1 },
   title: { fontSize: typeScale.title, fontWeight: "800", textAlign: "right", flexShrink: 1 },
   subtitle: { fontSize: typeScale.meta, textAlign: "right", flexShrink: 1 },
   sectionHeading: { flexDirection: "row-reverse", alignItems: "center", flexWrap: "wrap", gap: spacing.md, paddingTop: spacing.md },
