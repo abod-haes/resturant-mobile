@@ -1,6 +1,6 @@
 import { Tabs } from "heroui-native/tabs";
 import { strings } from "../../shared/config/strings";
-import { spacing, typeScale, useAppTheme } from "../../shared/config/theme";
+import { spacing, typeScale, useAppTheme, typography } from "../../shared/config/theme";
 import type { CallFilter } from "./model";
 
 type Props = {
@@ -51,10 +51,11 @@ export function CallsFilter({ value, onChange, disabled = false }: Props) {
           >
             {({ isSelected }) => (
               <Tabs.Label
-                className="text-center font-bold"
+                className="text-center"
                 style={{
                   color: isSelected ? "#FFFFFF" : colors.text,
                   fontSize: typeScale.body,
+                  fontFamily: typography.bold,
                   writingDirection: "rtl",
                   flexShrink: 1,
                 }}

@@ -10,7 +10,7 @@ import { getErrorPresentation, normalizeApiError } from "../../shared/api/error-
 import type { FieldErrors } from "../../shared/api/error-presentation";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
-import { radius, spacing, typeScale, useAppTheme } from "../../shared/config/theme";
+import { radius, spacing, typeScale, useAppTheme, typography } from "../../shared/config/theme";
 import { useAppLayout } from "../../shared/config/useAppLayout";
 import { strings } from "../../shared/config/strings";
 import { useSession } from "./SessionProvider";
@@ -119,11 +119,11 @@ const styles = StyleSheet.create({
     width: "100%", gap: spacing.md,
   },
   brand: { alignItems: "center", gap: spacing.sm, marginBottom: spacing.xxl },
-  eyebrow: { textAlign: "center", fontSize: 22, fontWeight: "700" },
-  title: { textAlign: "center", fontSize: typeScale.hero, fontWeight: "800" },
-  description: { textAlign: "center", fontSize: typeScale.control, marginBottom: spacing.sm },
+  eyebrow: { textAlign: "center", fontSize: 22, fontFamily: typography.bold },
+  title: { textAlign: "center", fontSize: typeScale.hero, fontFamily: typography.extraBold },
+  description: { textAlign: "center", fontFamily: typography.regular, fontSize: typeScale.control, marginBottom: spacing.sm },
   form: { marginTop: spacing.sm, gap: spacing.lg },
-  notice: { fontSize: typeScale.meta, textAlign: "right" },
+  notice: { fontFamily: typography.regular, fontSize: typeScale.meta, textAlign: "right" },
   demo: { padding: spacing.lg, borderRadius: radius.md, marginTop: spacing.md },
-  demoText: { fontSize: typeScale.caption, textAlign: "right" },
+  demoText: { fontFamily: typography.regular, fontSize: typeScale.caption, textAlign: "right" },
 });

@@ -6,7 +6,7 @@ import { AppButton } from "../../shared/ui/AppButton";
 import { AppCard } from "../../shared/ui/AppCard";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
 import { strings } from "../../shared/config/strings";
-import { useAppTheme, spacing, radius, typeScale } from "../../shared/config/theme";
+import { useAppTheme, spacing, radius, typeScale, typography } from "../../shared/config/theme";
 import { useSession } from "./SessionProvider";
 
 export function AccountScreen({ onChangePassword }: { onChangePassword: () => void }) {
@@ -67,12 +67,12 @@ export function AccountScreen({ onChangePassword }: { onChangePassword: () => vo
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.xl, width: "100%", maxWidth: 600, alignSelf: "center" },
   banner: { minHeight: 64, borderRadius: radius.md, justifyContent: "center", alignItems: "center" },
-  bannerTitle: { color: "#FFFFFF", fontSize: typeScale.title, fontWeight: "800" },
+  bannerTitle: { color: "#FFFFFF", fontSize: typeScale.title, fontFamily: typography.extraBold },
   profile: { flexDirection: "row-reverse", alignItems: "center", gap: spacing.lg, paddingVertical: spacing.md },
   avatar: { width: 76, height: 76, borderRadius: 38, alignItems: "center", justifyContent: "center" },
   details: { flex: 1, minWidth: 0, gap: spacing.xs },
-  name: { fontSize: typeScale.sectionTitle, fontWeight: "800", textAlign: "right" },
-  label: { fontSize: typeScale.body, textAlign: "right", flexShrink: 1 },
+  name: { fontSize: typeScale.sectionTitle, fontFamily: typography.extraBold, textAlign: "right" },
+  label: { fontFamily: typography.regular, fontSize: typeScale.body, textAlign: "right", flexShrink: 1 },
   row: { flexDirection: "row-reverse", alignItems: "center", gap: spacing.md, flexWrap: "wrap" },
   backdrop: { flex: 1, backgroundColor: "#0009", justifyContent: "center", padding: spacing.xxl },
   dialog: { width: "100%", maxWidth: 440, alignSelf: "center" },

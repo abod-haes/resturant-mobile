@@ -6,7 +6,7 @@ import type { ListRenderItemInfo } from "react-native";
 import { AppScreen } from "../../shared/ui/AppScreen";
 import type { ServiceCall } from "../../shared/api";
 import { strings } from "../../shared/config/strings";
-import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
+import { spacing, radius, typeScale, useAppTheme, typography } from "../../shared/config/theme";
 import { useAppLayout } from "../../shared/config/useAppLayout";
 import { AppButton } from "../../shared/ui/AppButton";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
@@ -161,17 +161,17 @@ const styles = StyleSheet.create({
   },
   headerSections: { gap: spacing.md, paddingBottom: spacing.md },
   banner: { minHeight: 64, borderRadius: radius.md, flexDirection: "row-reverse", alignItems: "center", justifyContent: "center", gap: spacing.md, padding: spacing.lg },
-  bannerTitle: { color: "#FFFFFF", fontSize: typeScale.title, fontWeight: "800" },
+  bannerTitle: { color: "#FFFFFF", fontSize: typeScale.title, fontFamily: typography.extraBold },
   sectionHeading: { flexDirection: "row-reverse", alignItems: "center", flexWrap: "wrap", gap: spacing.md, paddingTop: spacing.md },
   sectionText: { flex: 1, minWidth: 0, alignItems: "flex-end", gap: spacing.xs },
-  sectionTitle: { fontSize: typeScale.sectionTitle, fontWeight: "800", textAlign: "right", flexShrink: 1 },
-  sectionDescription: { fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
-  filterTitle: { fontSize: typeScale.meta, textAlign: "right" },
+  sectionTitle: { fontSize: typeScale.sectionTitle, fontFamily: typography.extraBold, textAlign: "right", flexShrink: 1 },
+  sectionDescription: { fontFamily: typography.regular, fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
+  filterTitle: { fontFamily: typography.regular, fontSize: typeScale.meta, textAlign: "right" },
   counter: { minWidth: 36, minHeight: 36, borderRadius: radius.sm, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
-  counterText: { fontSize: typeScale.meta, fontWeight: "800" },
+  counterText: { fontSize: typeScale.meta, fontFamily: typography.extraBold },
   separator: { height: spacing.md },
   footer: { gap: spacing.md, paddingTop: spacing.lg },
   empty: { borderRadius: radius.lg, borderWidth: 1, gap: spacing.sm },
-  emptyTitle: { fontSize: typeScale.cardTitle, fontWeight: "800", textAlign: "center" },
-  emptyHint: { fontSize: typeScale.meta, textAlign: "center" },
+  emptyTitle: { fontSize: typeScale.cardTitle, fontFamily: typography.extraBold, textAlign: "center" },
+  emptyHint: { fontFamily: typography.regular, fontSize: typeScale.meta, textAlign: "center" },
 });

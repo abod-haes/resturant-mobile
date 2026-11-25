@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Tabs } from "heroui-native/tabs";
 import { Bell, UserRound } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAppTheme, spacing, typeScale } from "../src/shared/config/theme";
+import { useAppTheme, spacing, typeScale, typography } from "../src/shared/config/theme";
 import { View, StyleSheet } from "react-native";
 import { AccountScreen, useSession } from "../src/features/auth";
 import { EmployeeHomeScreen } from "../src/features/calls";
@@ -51,7 +51,7 @@ function EmployeeTabs() {
             {({ isSelected }) => (
               <>
                 <Icon size={22} color={isSelected ? "#FFFFFF" : colors.muted} />
-                <Tabs.Label style={{ color: isSelected ? "#FFFFFF" : colors.text, fontSize: typeScale.control, fontWeight: "700" }}>{label}</Tabs.Label>
+                <Tabs.Label style={{ color: isSelected ? "#FFFFFF" : colors.text, fontSize: typeScale.control, fontFamily: typography.bold }}>{label}</Tabs.Label>
               </>
             )}
           </Tabs.Trigger>

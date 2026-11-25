@@ -10,7 +10,7 @@ import { getErrorPresentation, normalizeApiError } from "../../shared/api/error-
 import type { AppField, FieldErrors } from "../../shared/api/error-presentation";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
-import { spacing, typeScale, useAppTheme } from "../../shared/config/theme";
+import { spacing, typeScale, useAppTheme, typography } from "../../shared/config/theme";
 import { useAppLayout } from "../../shared/config/useAppLayout";
 import { strings } from "../../shared/config/strings";
 import { useSession } from "./SessionProvider";
@@ -101,6 +101,6 @@ const styles = StyleSheet.create({
     alignSelf: "center", width: "100%",
   },
   form: { gap: spacing.lg },
-  title: { fontSize: typeScale.title, fontWeight: "800", textAlign: "right" },
-  hint: { fontSize: typeScale.body, textAlign: "right" },
+  title: { fontSize: typeScale.title, fontFamily: typography.extraBold, textAlign: "right" },
+  hint: { fontFamily: typography.regular, fontSize: typeScale.body, textAlign: "right" },
 });

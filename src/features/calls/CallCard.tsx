@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { BellRing } from "lucide-react-native";
 import type { ServiceCall } from "../../shared/api";
 import { AppCard } from "../../shared/ui/AppCard";
-import { radius, spacing, typeScale, useAppTheme } from "../../shared/config/theme";
+import { radius, spacing, typeScale, useAppTheme, typography } from "../../shared/config/theme";
 import { strings } from "../../shared/config/strings";
 
 export function CallCard({ call }: { call: ServiceCall }) {
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   icon: { width: 48, height: 48, borderRadius: radius.md, alignItems: "center", justifyContent: "center" },
   header: { flexDirection: "row-reverse", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: spacing.md },
   type: { borderRadius: radius.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, maxWidth: "100%" },
-  typeText: { fontSize: typeScale.cardTitle, fontWeight: "700", textAlign: "right", flexShrink: 1 },
-  location: { textAlign: "right", fontSize: typeScale.meta, flexShrink: 1 },
-  date: { textAlign: "right", fontSize: typeScale.caption, flexShrink: 1 },
+  typeText: { fontSize: typeScale.cardTitle, fontFamily: typography.bold, textAlign: "right", flexShrink: 1 },
+  location: { textAlign: "right", fontFamily: typography.regular, fontSize: typeScale.meta, flexShrink: 1 },
+  date: { textAlign: "right", fontFamily: typography.regular, fontSize: typeScale.caption, flexShrink: 1 },
 });
