@@ -50,8 +50,8 @@ function EmployeeTabs() {
           <Tabs.Trigger key={value} value={value} accessibilityLabel={label} className="rounded-xl" style={{ flex: 1, minHeight: 58, flexDirection: "row-reverse", alignItems: "center", justifyContent: "center", gap: spacing.sm }}>
             {({ isSelected }) => (
               <>
-                <Icon size={22} color={isSelected ? "#FFFFFF" : colors.muted} />
-                <Tabs.Label style={{ color: isSelected ? "#FFFFFF" : colors.text, fontSize: typeScale.control, fontFamily: typography.bold }}>{label}</Tabs.Label>
+                <Icon size={22} color={isSelected ? colors.onPrimary : colors.muted} />
+                <Tabs.Label style={{ color: isSelected ? colors.onPrimary : colors.text, fontSize: typeScale.control, fontFamily: typography.bold }}>{label}</Tabs.Label>
               </>
             )}
           </Tabs.Trigger>

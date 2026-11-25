@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { UserRound, Moon, LogOut } from "lucide-react-native";
-import { View, Text, ScrollView, StyleSheet, Modal } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Modal, Image } from "react-native";
 import { AppScreen } from "../../shared/ui/AppScreen";
 import { AppButton } from "../../shared/ui/AppButton";
 import { AppCard } from "../../shared/ui/AppCard";
@@ -11,7 +11,8 @@ import { useSession } from "./SessionProvider";
 
 export function AccountScreen({ onChangePassword }: { onChangePassword: () => void }) {
   const { user, signOut } = useSession();
-  const { colors, dark } = useAppTheme();
+  const { colors, dark, identity } = useAppTheme();
+  const [failedLogo, setFailedLogo] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -26,13 +27,14 @@ export function AccountScreen({ onChangePassword }: { onChangePassword: () => vo
   return <AppScreen>
     <ScrollView contentContainerStyle={styles.content}>
       <View style={[styles.banner, { backgroundColor: colors.button }]}>
-        <Text accessibilityRole="header" style={styles.bannerTitle}>{strings.account}</Text>
+        <Text accessibilityRole="header" style={[styles.bannerTitle, { color: colors.onPrimary }]}>{strings.account}</Text>
       </View>
       <View style={styles.profile}>
-        <View style={[styles.avatar, { backgroundColor: colors.surfaceAlt }]}><UserRound size={36} color={colors.primary} /></View>
+        <View style={[styles.avatar, { backgroundColor: colors.surfaceAlt }]}>{identity?.branding.logoUrl && identity.branding.logoUrl !== failedLogo ? <Image source={{ uri: identity.branding.logoUrl }} style={styles.logo} resizeMode="contain" onError={() => setFailedLogo(identity.branding.logoUrl)} /> : <UserRound size={36} color={colors.primary} />}</View>
         <View style={styles.details}>
           <Text style={[styles.name, { color: colors.text }]}>{user?.name ?? user?.username ?? strings.employee}</Text>
           <Text style={[styles.label, { color: colors.muted }]}>{user?.department === "hookah" ? strings.hookahDepartment : user?.department === "waiter" ? strings.waiterDepartment : strings.employee}</Text>
+          {identity && <Text style={[styles.label, { color: colors.muted }]}>{identity.name}</Text>}
           {user?.username && <Text style={[styles.label, { color: colors.muted }]}>{user.username}</Text>}
         </View>
       </View>
@@ -67,7 +69,8 @@ export function AccountScreen({ onChangePassword }: { onChangePassword: () => vo
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.xl, width: "100%", maxWidth: 600, alignSelf: "center" },
   banner: { minHeight: 64, borderRadius: radius.md, justifyContent: "center", alignItems: "center" },
-  bannerTitle: { color: "#FFFFFF", fontSize: typeScale.title, fontFamily: typography.extraBold },
+  logo: { width: 58, height: 58, borderRadius: 10 },
+  bannerTitle: { fontSize: typeScale.title, fontFamily: typography.extraBold },
   profile: { flexDirection: "row-reverse", alignItems: "center", gap: spacing.lg, paddingVertical: spacing.md },
   avatar: { width: 76, height: 76, borderRadius: 38, alignItems: "center", justifyContent: "center" },
   details: { flex: 1, minWidth: 0, gap: spacing.xs },

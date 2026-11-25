@@ -10,7 +10,7 @@ const PLACEHOLDERS = [0, 1, 2] as const;
 
 /** Mirrors CallCard geometry without displaying fabricated call data. */
 export function CallCardsSkeleton({ count = 3 }: Props) {
-  const { colors } = useAppTheme();
+  const { skeleton } = useAppTheme();
   const opacity = useRef(new Animated.Value(0.55)).current;
 
   useEffect(() => {
@@ -34,12 +34,12 @@ export function CallCardsSkeleton({ count = 3 }: Props) {
         <AppCard key={item} style={styles.card}>
           <Animated.View style={[styles.placeholderContent, { opacity }]}>
             <View style={styles.header}>
-              <View style={[styles.pill, { backgroundColor: colors.surfaceAlt }]} />
-              <View style={[styles.heading, { backgroundColor: colors.surfaceAlt }]} />
+              <View style={[styles.pill, { backgroundColor: skeleton }]} />
+              <View style={[styles.heading, { backgroundColor: skeleton }]} />
             </View>
-            <View style={[styles.line, styles.mediumLine, { backgroundColor: colors.surfaceAlt }]} />
-            <View style={[styles.line, styles.longLine, { backgroundColor: colors.surfaceAlt }]} />
-            <View style={[styles.line, styles.shortLine, { backgroundColor: colors.surfaceAlt }]} />
+            <View style={[styles.line, styles.mediumLine, { backgroundColor: skeleton }]} />
+            <View style={[styles.line, styles.longLine, { backgroundColor: skeleton }]} />
+            <View style={[styles.line, styles.shortLine, { backgroundColor: skeleton }]} />
           </Animated.View>
         </AppCard>
       ))}

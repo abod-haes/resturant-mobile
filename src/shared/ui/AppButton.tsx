@@ -21,12 +21,12 @@ export function AppButton({
   title, onPress, variant = "primary", disabled = false, loading = false,
   accessibilityHint, accessibilityLabel, style, testID, foregroundColor,
 }: Props) {
-  const { colors } = useAppTheme();
+  const { colors, buttonPressed } = useAppTheme();
   const backgroundColor = variant === "primary"
     ? colors.button
     : variant === "danger" ? colors.dangerSurface : colors.surfaceAlt;
   const foreground = foregroundColor ?? (variant === "primary"
-    ? "#FFFFFF"
+    ? colors.onPrimary
     : variant === "danger" ? colors.danger : colors.text);
 
   return (
@@ -40,7 +40,7 @@ export function AppButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor, opacity: disabled ? 0.45 : pressed ? 0.82 : 1 },
+        { backgroundColor: pressed && variant === "primary" ? buttonPressed : backgroundColor, opacity: disabled ? 0.45 : pressed && variant !== "primary" ? 0.82 : 1 },
         style,
       ]}
     >

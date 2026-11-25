@@ -80,7 +80,19 @@ export type RegisterDeviceInput = {
   platform: "ios" | "android";
 };
 
+export const restaurantIdentitySchema = z.object({
+  id: z.string().min(1), name: z.string(), subdomain: z.string().nullable(),
+  branding: z.object({
+    logoUrl: z.string().url().refine(value => value.startsWith("https://")).nullable(),
+    primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).nullable(),
+    secondaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).nullable(),
+    fontFamily: z.enum(["cairo", "system"]).nullable(),
+  }),
+});
+export type RestaurantIdentity = z.infer<typeof restaurantIdentitySchema>;
+
 export interface EmployeeApi {
+  getRestaurantIdentity(signal?: AbortSignal): Promise<RestaurantIdentity>;
   setAccessToken(token: string | null): void;
   setReauthenticate(handler: (() => Promise<void>) | null): void;
   setPasswordChangeRequired(handler: (() => void) | null): void;

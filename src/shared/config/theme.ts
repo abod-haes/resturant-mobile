@@ -1,4 +1,7 @@
+import { createContext, useContext } from "react";
 import { useColorScheme } from "react-native";
+import { deriveRestaurantTheme } from "./restaurant-theme";
+import type { RestaurantIdentity } from "../api/types";
 import { colorPalettes } from "./palettes";
 import type { AppColors } from "./palettes";
 
@@ -15,9 +18,22 @@ export const typeScale = {
 } as const;
 
 export type { AppColors };
-export function useAppTheme(): { colors: AppColors; dark: boolean } {
+export const RestaurantIdentityContext = createContext<RestaurantIdentity | null>(null);
+export function useRestaurantIdentity() { return useContext(RestaurantIdentityContext); }
+export function useAppTheme() {
+  const identity = useRestaurantIdentity();
   const dark = useColorScheme() === "dark";
-  return { colors: dark ? colorPalettes.dark : colorPalettes.light, dark };
+  const base = dark ? colorPalettes.dark : colorPalettes.light;
+  const t = identity ? deriveRestaurantTheme(identity.branding, dark ? "dark" : "light") : null;
+  const colors: AppColors = t ? {
+    background: t.background, surface: t.surface, surfaceAlt: t.primarySoft,
+    primary: t.primaryText, primaryPressed: t.primaryPressed, accent: t.secondarySoft,
+    text: t.text, muted: t.muted, border: t.border, danger: t.danger,
+    dangerSurface: t.dangerSurface, success: t.success, successSurface: t.successSurface,
+    button: t.primaryStrong, gold: t.secondary, onPrimary: t.onPrimary, input: t.input,
+  } : { ...base, onPrimary: "#FFFFFF" };
+  return { colors, dark, identity, fontFamily: t?.fontFamily ?? "cairo",
+    skeleton: t?.skeleton ?? base.surfaceAlt, buttonPressed: t?.primaryPressed ?? base.primaryPressed };
 }
 
 /** Loaded once by the root layout; use named static faces rather than synthesized weights. */

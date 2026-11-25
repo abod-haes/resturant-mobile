@@ -83,6 +83,15 @@ export const mockEmployeeApi: EmployeeApi = {
     accessToken = TOKEN_PREFIX + id;
     return session();
   },
+  async getRestaurantIdentity() {
+    await mockDelay();
+    const user = profile();
+    const restaurant = mockDb.list("restaurants").find(item => item.id === user.restaurantId);
+    if (!restaurant) throw new ApiError("NOT_FOUND", 404, "المطعم غير موجود.");
+    return { id: restaurant.id, name: restaurant.name, subdomain: restaurant.slug,
+      branding: { logoUrl: null, primaryColor: restaurant.id === "rest-demo" ? "#D4AF37" : "#174C35",
+        secondaryColor: "#111111", fontFamily: "cairo" } };
+  },
   async getMe() {
     await mockDelay();
     return profile();

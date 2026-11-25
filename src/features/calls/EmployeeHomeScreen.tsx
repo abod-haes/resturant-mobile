@@ -58,8 +58,8 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   const listHeader = (
     <View style={styles.headerSections}>
       <View style={[styles.banner, { backgroundColor: colors.button }]}>
-        <BellRing size={24} color="#FFFFFF" />
-        <Text accessibilityRole="header" style={styles.bannerTitle}>{strings.notifications}</Text>
+        <BellRing size={24} color={colors.onPrimary} />
+        <Text accessibilityRole="header" style={[styles.bannerTitle, { color: colors.onPrimary }]}>{strings.notifications}</Text>
       </View>
       <NotificationPermissionPrompt />
       <ShiftPanel
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   },
   headerSections: { gap: spacing.md, paddingBottom: spacing.md },
   banner: { minHeight: 64, borderRadius: radius.md, flexDirection: "row-reverse", alignItems: "center", justifyContent: "center", gap: spacing.md, padding: spacing.lg },
-  bannerTitle: { color: "#FFFFFF", fontSize: typeScale.title, fontFamily: typography.extraBold },
+  bannerTitle: { fontSize: typeScale.title, fontFamily: typography.extraBold },
   sectionHeading: { flexDirection: "row-reverse", alignItems: "center", flexWrap: "wrap", gap: spacing.md, paddingTop: spacing.md },
   sectionText: { flex: 1, minWidth: 0, alignItems: "flex-end", gap: spacing.xs },
   sectionTitle: { fontSize: typeScale.sectionTitle, fontFamily: typography.extraBold, textAlign: "right", flexShrink: 1 },

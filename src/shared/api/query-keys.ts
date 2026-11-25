@@ -1,5 +1,7 @@
 /** Shared query key factory; all authenticated caches are user-scoped. */
 export const employeeKeys = {
+  restaurantIdentity: (userId: string | undefined, restaurantId: string | null | undefined) =>
+    ["employee", userId, "restaurant-identity", restaurantId] as const,
   shift: (id: string | undefined) => ["employee", id, "shift"] as const,
   calls: (id: string | undefined, type?: string) =>
     ["employee", id, "calls", ...(type ? [type] : [])] as const,

@@ -53,7 +53,7 @@ export function CallsFilter({ value, onChange, disabled = false }: Props) {
               <Tabs.Label
                 className="text-center"
                 style={{
-                  color: isSelected ? "#FFFFFF" : colors.text,
+                  color: isSelected ? colors.onPrimary : colors.text,
                   fontSize: typeScale.body,
                   fontFamily: typography.bold,
                   writingDirection: "rtl",

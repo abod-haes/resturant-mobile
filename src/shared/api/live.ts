@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ApiError } from "./errors";
 import { httpClient, validateApiBaseUrl } from "./http/client";
 import { subscribeEmployeeEvents } from "./employee-events";
-import { callSchema, employeeSchema, pageMetaSchema, pushDeviceSchema, sessionSchema, shiftSchema } from "./types";
+import { callSchema, employeeSchema, pageMetaSchema, pushDeviceSchema, sessionSchema, shiftSchema, restaurantIdentitySchema } from "./types";
 import type { EmployeeApi, CallPageQuery, LoginInput, ChangePasswordInput } from "./types";
 
 function unwrap<T>(payload: unknown, schema: z.ZodType<T>): T {
@@ -23,6 +23,9 @@ export const liveEmployeeApi: EmployeeApi = {
     return unwrap(await httpClient.publicRequest("POST", "/auth/refresh", {
       body: { refreshToken },
     }), sessionSchema);
+  },
+  async getRestaurantIdentity(signal) {
+    return unwrap(await httpClient.authorized("GET", "/auth/restaurant-identity", { signal }), restaurantIdentitySchema);
   },
   async getMe() {
     return unwrap(await httpClient.authorized("GET", "/auth/me"), employeeSchema);

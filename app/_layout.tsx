@@ -10,7 +10,7 @@ import { StatusBar } from "expo-status-bar";
 import { QueryLifecycle } from "../src/shared/api/query-lifecycle";
 import { canRetryRead } from "../src/shared/api/errors";
 import { FeedbackProvider } from "../src/shared/ui/AppToast";
-import { SessionProvider, useSession } from "../src/features/auth";
+import { SessionProvider, useSession, RestaurantThemeProvider } from "../src/features/auth";
 import { NotificationCoordinator } from "../src/features/notifications";
 
 function AuthenticatedServices() {
@@ -38,6 +38,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={client}>
         <SessionProvider>
+          <RestaurantThemeProvider>
           <QueryLifecycle />
           <StatusBar style="auto" />
           <FeedbackProvider>
@@ -48,6 +49,7 @@ export default function RootLayout() {
               <Stack.Screen name="change-password" />
             </Stack>
           </FeedbackProvider>
+        </RestaurantThemeProvider>
         </SessionProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
