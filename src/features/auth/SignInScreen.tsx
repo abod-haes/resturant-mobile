@@ -2,7 +2,7 @@ import { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View, StyleSheet } from "react-native";
 import { AppScreen } from "../../shared/ui/AppScreen";
 import { AppButton } from "../../shared/ui/AppButton";
-import { AppCard } from "../../shared/ui/AppCard";
+import Svg, { Path, Circle } from "react-native-svg";
 import { AppInput } from "../../shared/ui/AppInput";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
 import { isMockMode } from "../../shared/api";
@@ -58,15 +58,17 @@ export function SignInScreen() {
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView contentContainerStyle={[styles.content, { padding: layout.formPadding, maxWidth: layout.maxFormWidth }]}
           keyboardShouldPersistTaps="handled">
-          <View accessible={false} importantForAccessibility="no-hide-descendants"
-            style={[styles.mark, { backgroundColor: colors.primary }]}>
-            <Text allowFontScaling={false} style={[styles.markText, { color: colors.onPrimary }]}>R</Text>
+          <View style={styles.brand}>
+            <Svg width={108} height={88} viewBox="0 0 108 88" fill="none">
+              <Path d="M15 67 C18 38 90 38 93 67 H15 M9 74 H99" stroke={colors.primary} strokeWidth={4} strokeLinecap="round" />
+              <Path d="M42 30 C32 18 51 13 42 3 M55 30 C45 18 64 13 55 3 M68 30 C58 18 77 13 68 3" stroke={colors.gold} strokeWidth={3} strokeLinecap="round" />
+              <Circle cx={54} cy={37} r={4} stroke={colors.primary} strokeWidth={3} />
+            </Svg>
+            <Text style={[styles.eyebrow, { color: colors.text }]}>{strings.appName}</Text>
           </View>
-          <Text style={[styles.eyebrow, { color: colors.primary }]}>{strings.appName}</Text>
-          <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>{strings.welcome}</Text>
+          <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>{strings.signIn}</Text>
           <Text style={[styles.description, { color: colors.muted }]}>{strings.signInDescription}</Text>
-          <AppCard style={styles.form}>
-            <Text accessibilityRole="header" style={[styles.cardTitle, { color: colors.text }]}>{strings.signIn}</Text>
+          <View style={styles.form}>
             <AppInput
               label={strings.username}
               textDirection="ltr"
@@ -99,7 +101,7 @@ export function SignInScreen() {
               loading={pending}
               disabled={cooldown > 0}
             />
-          </AppCard>
+          </View>
           {isMockMode && (
             <View style={[styles.demo, { backgroundColor: colors.surfaceAlt }]}>
               <Text style={[styles.demoText, { color: colors.muted }]}>{strings.demoHint}</Text>
@@ -116,13 +118,11 @@ const styles = StyleSheet.create({
     flexGrow: 1, justifyContent: "center", alignSelf: "center",
     width: "100%", gap: spacing.md,
   },
-  mark: { width: 64, height: 64, borderRadius: radius.lg, alignItems: "center", justifyContent: "center", alignSelf: "flex-end" },
-  markText: { fontSize: 32, fontWeight: "800" },
-  eyebrow: { textAlign: "right", fontSize: 14, fontWeight: "700", marginTop: spacing.md },
-  title: { textAlign: "right", fontSize: typeScale.hero, fontWeight: "800" },
-  description: { textAlign: "right", fontSize: typeScale.control, marginBottom: spacing.sm },
+  brand: { alignItems: "center", gap: spacing.sm, marginBottom: spacing.xxl },
+  eyebrow: { textAlign: "center", fontSize: 22, fontWeight: "700" },
+  title: { textAlign: "center", fontSize: typeScale.hero, fontWeight: "800" },
+  description: { textAlign: "center", fontSize: typeScale.control, marginBottom: spacing.sm },
   form: { marginTop: spacing.sm, gap: spacing.lg },
-  cardTitle: { fontSize: typeScale.sectionTitle, fontWeight: "800", textAlign: "right" },
   notice: { fontSize: typeScale.meta, textAlign: "right" },
   demo: { padding: spacing.lg, borderRadius: radius.md, marginTop: spacing.md },
   demoText: { fontSize: typeScale.caption, textAlign: "right" },
