@@ -31,7 +31,7 @@ export function useAppTheme() {
     text: t.text, muted: t.muted, border: t.border, danger: t.danger,
     dangerSurface: t.dangerSurface, success: t.success, successSurface: t.successSurface,
     button: t.primaryStrong, gold: t.secondary, onPrimary: t.onPrimary, input: t.input,
-  } : { ...base, onPrimary: "#FFFFFF" };
+  } : base;
   return { colors, dark, identity, typography: t?.fontFamily === "system" ? systemTypography : cairoTypography, fontFamily: t?.fontFamily ?? "cairo",
     skeleton: t?.skeleton ?? base.surfaceAlt, buttonPressed: t?.primaryPressed ?? base.primaryPressed };
 }

@@ -24,7 +24,7 @@ export const colorPalettes = {
     surface: "#2C2025",
     surfaceAlt: "#462B34",
     primary: "#F0ACB8",
-    primaryPressed: "#FFD0D6",
+    primaryPressed: "#68202D",
     accent: "#463326",
     text: "#FCF7F5",
     muted: "#C9B6BC",
@@ -35,7 +35,7 @@ export const colorPalettes = {
     successSurface: "#244A3C",
     button: "#8B2E3C",
     gold: "#D9A441",
-    onPrimary: "#2B1F22",
+    onPrimary: "#FFFFFF",
     input: "#2C2025",
   },
 } as const;

@@ -7,6 +7,7 @@ const routes = {
   "/api/v1/auth/refresh": ["post"],
   "/api/v1/auth/logout": ["post"],
   "/api/v1/auth/me": ["get"],
+  "/api/v1/auth/restaurant-identity": ["get"],
   "/api/v1/auth/change-password": ["post"],
   "/api/v1/employee/shifts/start": ["post"],
   "/api/v1/employee/shifts/current": ["get"],
@@ -25,7 +26,7 @@ function validate(doc) {
   for (const [path, methods] of Object.entries(routes))
     for (const method of methods) assert(doc.paths?.[path]?.[method], "Missing " + method + " " + path);
   const schemas = doc.components?.schemas ?? {};
-  for (const type of ["LoginDataDto", "LoginResponseDto", "UserDto", "ShiftDto", "CallHistoryDto", "PushDeviceDto", "ApiErrorEnvelope"])
+  for (const type of ["LoginDataDto", "LoginResponseDto", "UserDto", "ShiftDto", "CallHistoryDto", "PushDeviceDto", "ApiErrorEnvelope", "AuthenticatedRestaurantIdentityDto", "AuthenticatedRestaurantIdentityResponseDto", "BrandingDto"])
     assert(schemas[type], "Missing schema " + type);
   for (const field of ["id", "userId", "branchId", "department", "autoEndAt", "endedAt"])
     assert(schemas.ShiftDto.properties?.[field], "Shift is missing " + field);
