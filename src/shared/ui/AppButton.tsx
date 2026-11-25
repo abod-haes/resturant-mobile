@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, Text, StyleSheet } from "react-native";
 import type { StyleProp, ViewStyle } from "react-native";
-import { radius, spacing, typeScale, useAppTheme, typography } from "../config/theme";
+import { radius, spacing, typeScale, useAppTheme } from "../config/theme";
 import { layoutTokens } from "../config/layout";
 
 type Props = {
@@ -21,7 +21,8 @@ export function AppButton({
   title, onPress, variant = "primary", disabled = false, loading = false,
   accessibilityHint, accessibilityLabel, style, testID, foregroundColor,
 }: Props) {
-  const { colors, buttonPressed } = useAppTheme();
+  const { colors, buttonPressed, typography } = useAppTheme();
+  const styles = createStyles(typography);
   const backgroundColor = variant === "primary"
     ? colors.button
     : variant === "danger" ? colors.dangerSurface : colors.surfaceAlt;
@@ -50,7 +51,7 @@ export function AppButton({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (typography: import("../config/theme").AppTypography) => StyleSheet.create({
   button: {
     minHeight: layoutTokens.minTouchTarget + 2,
     minWidth: 0,
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   title: {
-    fontSize: typeScale.control, fontFamily: typography.bold,
+    fontSize: typeScale.control, ...typography.bold,
     textAlign: "center", textAlignVertical: "center", includeFontPadding: false,
     lineHeight: 24, flexShrink: 1,
   },

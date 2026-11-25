@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { PropsWithChildren } from "react";
 import { AccessibilityInfo, View, Text, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { radius, spacing, typeScale, useAppTheme, typography } from "../config/theme";
+import { radius, spacing, typeScale, useAppTheme } from "../config/theme";
 import { feedbackText } from "../i18n/feedback";
 
 type Toast = { message: string; kind: "success" | "error"; key: string; id: number };
@@ -10,7 +10,8 @@ type FeedbackContextValue = { showToast(input: { message: string; kind?: Toast["
 const FeedbackContext = createContext<FeedbackContextValue | null>(null);
 
 export function FeedbackProvider({ children }: PropsWithChildren) {
-  const { colors } = useAppTheme();
+  const { colors, typography } = useAppTheme();
+  const styles = createStyles(typography);
   const insets = useSafeAreaInsets();
   const [toast, setToast] = useState<Toast | null>(null);
   const [screenReaderEnabled, setScreenReaderEnabled] = useState(false);
@@ -74,7 +75,7 @@ export function useFeedback(): FeedbackContextValue {
   if (!context) throw new Error("useFeedback must be used inside FeedbackProvider");
   return context;
 }
-const styles = StyleSheet.create({
+const createStyles = (typography: import("../config/theme").AppTypography) => StyleSheet.create({
   overlay: {
     position: "absolute", left: spacing.md, right: spacing.md,
     alignItems: "center", zIndex: 10,
@@ -85,5 +86,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
     justifyContent: "center",
   },
-  message: { fontFamily: typography.regular, fontSize: typeScale.body, textAlign: "center" },
+  message: { ...typography.regular, fontSize: typeScale.body, textAlign: "center" },
 });

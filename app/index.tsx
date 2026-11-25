@@ -29,7 +29,7 @@ export default function Home() {
     </AppScreen>
   );
 }
-const createStyles = (typography: import("../../shared/config/theme").AppTypography) => StyleSheet.create({ center: { flex: 1, justifyContent: "center" } });
+const styles = StyleSheet.create({ center: { flex: 1, justifyContent: "center" } });
 
 const tabs = [
   { value: "notifications", label: strings.notifications, Icon: Bell },
@@ -38,7 +38,6 @@ const tabs = [
 function EmployeeTabs() {
   const [tab, setTab] = useState<"notifications" | "account">("notifications");
   const { colors, typography } = useAppTheme();
-  const styles = createStyles(typography);
   const insets = useSafeAreaInsets();
   return (
     <Tabs value={tab} onValueChange={(next) => { if (next === "notifications" || next === "account") setTab(next); }} variant="primary" style={{ flex: 1, backgroundColor: colors.background }}>

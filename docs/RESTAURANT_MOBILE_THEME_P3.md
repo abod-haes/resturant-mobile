@@ -1,2 +1,4 @@
 # P3 employee identity
 Authenticated identity uses GET /auth/restaurant-identity; the query is scoped by user and restaurant, checked against the session, disabled outside authentication, and cleared by existing session cache cleanup. React Query focus/reconnect refresh uses existing QueryLifecycle. Platform palette remains on sign-in; while identity is unavailable, fall back to platform palette. Existing HeroUI tabs use explicit theme colors; no new native dependency. Mock identity supports two restaurants. Native appearance follows system. No persistent identity cache beyond current authenticated query cache. Runtime checks not run at user request.
+
+Font preference now maps Cairo static faces or OS system font weights in feature screens, HeroUI labels and shared UI primitives. Existing native OS alerts remain OS-owned. Cache is in memory only; a cold offline launch cannot restore identity without a successful session restoration.

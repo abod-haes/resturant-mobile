@@ -1,12 +1,13 @@
 import { ActivityIndicator, Text, View, StyleSheet } from "react-native";
-import { spacing, typeScale, useAppTheme, typography } from "../config/theme";
+import { spacing, typeScale, useAppTheme } from "../config/theme";
 import { feedbackText } from "../i18n/feedback";
 import { AppButton } from "./AppButton";
 
 export function Feedback({
   message, retry, loading = false, retryLabel = feedbackText("retry"),
 }: { message: string; retry?: () => void; loading?: boolean; retryLabel?: string }) {
-  const { colors } = useAppTheme();
+  const { colors, typography } = useAppTheme();
+  const styles = createStyles(typography);
   return (
     <View style={styles.wrapper}>
       {loading && <ActivityIndicator accessibilityLabel={message} color={colors.primary} />}
@@ -16,7 +17,7 @@ export function Feedback({
     </View>
   );
 }
-const styles = StyleSheet.create({
+const createStyles = (typography: import("../config/theme").AppTypography) => StyleSheet.create({
   wrapper: { minWidth: 0, alignItems: "center", justifyContent: "center", padding: spacing.xl, gap: spacing.lg },
-  message: { fontFamily: typography.regular, fontSize: typeScale.body, textAlign: "center" },
+  message: { ...typography.regular, fontSize: typeScale.body, textAlign: "center" },
 });

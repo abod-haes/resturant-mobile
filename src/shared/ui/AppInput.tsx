@@ -3,7 +3,7 @@ import { Eye, EyeOff } from "lucide-react-native";
 import { strings } from "../config/strings";
 import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
 import type { TextInputProps } from "react-native";
-import { radius, spacing, typeScale, useAppTheme, typography } from "../config/theme";
+import { radius, spacing, typeScale, useAppTheme } from "../config/theme";
 import { FieldError } from "./FieldError";
 
 type Props = TextInputProps & {
@@ -14,7 +14,8 @@ type Props = TextInputProps & {
 };
 
 export function AppInput({ label, error, textDirection = "rtl", style, ...inputProps }: Props) {
-  const { colors } = useAppTheme();
+  const { colors, typography } = useAppTheme();
+  const styles = createStyles(typography);
   const [visible, setVisible] = useState(false);
   const password = Boolean(inputProps.secureTextEntry);
   return (
@@ -52,15 +53,15 @@ export function AppInput({ label, error, textDirection = "rtl", style, ...inputP
     </View>
   );
 }
-const styles = StyleSheet.create({
+const createStyles = (typography: import("../config/theme").AppTypography) => StyleSheet.create({
   inputWrap: { position: "relative", direction: "ltr" },
   eye: { position: "absolute", left: 0, top: 0, bottom: 0, width: 48, alignItems: "center", justifyContent: "center" },
   field: { minWidth: 0, gap: spacing.sm },
-  label: { textAlign: "right", fontSize: typeScale.meta, fontFamily: typography.bold },
+  label: { textAlign: "right", fontSize: typeScale.meta, ...typography.bold },
   input: {
     minWidth: 0, minHeight: 52, borderWidth: 1,
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
-    fontSize: typeScale.control, fontFamily: typography.regular,
+    fontSize: typeScale.control, ...typography.regular,
   },
 });
