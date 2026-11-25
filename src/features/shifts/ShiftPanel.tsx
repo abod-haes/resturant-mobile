@@ -4,7 +4,7 @@ import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
 import { AppButton } from "../../shared/ui/AppButton";
 import { AppCard } from "../../shared/ui/AppCard";
-import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
+import { spacing, radius, typeScale, useAppTheme, typography } from "../../shared/config/theme";
 import { strings } from "../../shared/config/strings";
 
 type Props = {
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   panel: { padding: spacing.md, gap: spacing.sm },
   header: { flexDirection: "row-reverse", alignItems: "center", gap: spacing.sm },
   dot: { width: 9, height: 9, borderRadius: 5 },
-  heading: { fontSize: typeScale.cardTitle, fontWeight: "800", textAlign: "right", flexShrink: 1 },
+  heading: { fontSize: typeScale.cardTitle, fontFamily: typography.extraBold, textAlign: "right", flexShrink: 1 },
   status: { borderRadius: radius.sm, padding: spacing.sm, gap: spacing.xs },
-  state: { textAlign: "right", fontSize: typeScale.body, fontWeight: "600", flexShrink: 1 },
+  state: { textAlign: "right", fontSize: typeScale.body, fontFamily: typography.semibold, flexShrink: 1 },
 });

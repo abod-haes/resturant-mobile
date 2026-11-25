@@ -1,5 +1,5 @@
 import { Text, StyleSheet } from "react-native";
-import { spacing, typeScale, useAppTheme } from "../config/theme";
+import { spacing, typeScale, useAppTheme, typography } from "../config/theme";
 
 /** Announce safe form errors without clipping at larger OS text sizes. */
 export function FieldError({ message }: { message?: string | null }) {
@@ -13,5 +13,5 @@ export function FieldError({ message }: { message?: string | null }) {
   );
 }
 const styles = StyleSheet.create({
-  text: { fontSize: typeScale.caption, textAlign: "right", marginTop: spacing.xs },
+  text: { fontFamily: typography.regular, fontSize: typeScale.caption, textAlign: "right", marginTop: spacing.xs },
 });

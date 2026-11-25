@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, Text, StyleSheet } from "react-native";
 import type { StyleProp, ViewStyle } from "react-native";
-import { radius, spacing, typeScale, useAppTheme } from "../config/theme";
+import { radius, spacing, typeScale, useAppTheme, typography } from "../config/theme";
 import { layoutTokens } from "../config/layout";
 
 type Props = {
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   title: {
-    fontSize: typeScale.control, fontWeight: "700",
+    fontSize: typeScale.control, fontFamily: typography.bold,
     textAlign: "center", textAlignVertical: "center", includeFontPadding: false,
     lineHeight: 24, flexShrink: 1,
   },

@@ -1,5 +1,5 @@
 import { ActivityIndicator, Text, View, StyleSheet } from "react-native";
-import { spacing, typeScale, useAppTheme } from "../config/theme";
+import { spacing, typeScale, useAppTheme, typography } from "../config/theme";
 import { feedbackText } from "../i18n/feedback";
 import { AppButton } from "./AppButton";
 
@@ -18,5 +18,5 @@ export function Feedback({
 }
 const styles = StyleSheet.create({
   wrapper: { minWidth: 0, alignItems: "center", justifyContent: "center", padding: spacing.xl, gap: spacing.lg },
-  message: { fontSize: typeScale.body, textAlign: "center" },
+  message: { fontFamily: typography.regular, fontSize: typeScale.body, textAlign: "center" },
 });

@@ -3,7 +3,7 @@ import { Eye, EyeOff } from "lucide-react-native";
 import { strings } from "../config/strings";
 import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
 import type { TextInputProps } from "react-native";
-import { radius, spacing, typeScale, useAppTheme } from "../config/theme";
+import { radius, spacing, typeScale, useAppTheme, typography } from "../config/theme";
 import { FieldError } from "./FieldError";
 
 type Props = TextInputProps & {
@@ -56,11 +56,11 @@ const styles = StyleSheet.create({
   inputWrap: { position: "relative", direction: "ltr" },
   eye: { position: "absolute", left: 0, top: 0, bottom: 0, width: 48, alignItems: "center", justifyContent: "center" },
   field: { minWidth: 0, gap: spacing.sm },
-  label: { textAlign: "right", fontSize: typeScale.meta, fontWeight: "700" },
+  label: { textAlign: "right", fontSize: typeScale.meta, fontFamily: typography.bold },
   input: {
     minWidth: 0, minHeight: 52, borderWidth: 1,
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
-    fontSize: typeScale.control,
+    fontSize: typeScale.control, fontFamily: typography.regular,
   },
 });

@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { PropsWithChildren } from "react";
 import { AccessibilityInfo, View, Text, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { radius, spacing, typeScale, useAppTheme } from "../config/theme";
+import { radius, spacing, typeScale, useAppTheme, typography } from "../config/theme";
 import { feedbackText } from "../i18n/feedback";
 
 type Toast = { message: string; kind: "success" | "error"; key: string; id: number };
@@ -85,5 +85,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
     justifyContent: "center",
   },
-  message: { fontSize: typeScale.body, textAlign: "center" },
+  message: { fontFamily: typography.regular, fontSize: typeScale.body, textAlign: "center" },
 });

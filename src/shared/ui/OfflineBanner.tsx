@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { onlineManager } from "@tanstack/react-query";
 import { feedbackText } from "../i18n/feedback";
-import { spacing, typeScale, useAppTheme } from "../config/theme";
+import { spacing, typeScale, useAppTheme, typography } from "../config/theme";
 
 const subscribeOnline = (callback: () => void) => onlineManager.subscribe(callback);
 const isOnline = () => onlineManager.isOnline();
@@ -22,5 +22,5 @@ export function OfflineBanner() {
 }
 const styles = StyleSheet.create({
   banner: { paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderBottomWidth: 1 },
-  text: { textAlign: "center", fontSize: typeScale.caption },
+  text: { textAlign: "center", fontFamily: typography.regular, fontSize: typeScale.caption },
 });

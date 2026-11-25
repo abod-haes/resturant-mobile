@@ -5,7 +5,7 @@ import { useRetryCooldown } from "../api/use-retry-cooldown";
 import type { FeedbackContext, ErrorAction } from "../api/error-presentation";
 import type { AppLocale } from "../i18n/feedback";
 import { feedbackText } from "../i18n/feedback";
-import { radius, spacing, typeScale, useAppTheme } from "../config/theme";
+import { radius, spacing, typeScale, useAppTheme, typography } from "../config/theme";
 
 /** Accessible error text remains separate from nested retry and support actions. */
 type Props = {
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md, padding: spacing.md, gap: spacing.sm,
   },
   screen: { padding: spacing.xl },
-  message: { fontSize: typeScale.body, textAlign: "right", flexShrink: 1 },
-  reference: { fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
+  message: { fontFamily: typography.regular, fontSize: typeScale.body, textAlign: "right", flexShrink: 1 },
+  reference: { fontFamily: typography.regular, fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
   action: { alignSelf: "flex-end", minWidth: 128 },
 });

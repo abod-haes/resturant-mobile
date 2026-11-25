@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Linking, Platform, Text, View, StyleSheet } from "react-native";
 import * as Notifications from "expo-notifications";
 import { AppButton } from "../../shared/ui/AppButton";
-import { useAppTheme, spacing, radius, typeScale } from "../../shared/config/theme";
+import { useAppTheme, spacing, radius, typeScale, typography } from "../../shared/config/theme";
 import { prepareNotifications } from "./runtime";
 
 /** Explain permissions once per authenticated session; always allow later recovery. */
@@ -35,11 +35,11 @@ export function NotificationPermissionPrompt() {
     </Text>
     <AppButton title={status === "denied" ? "فتح إعدادات الإشعارات" : "تفعيل الإشعارات"} disabled={busy}
       loading={busy} onPress={() => { if (status === "denied") void Linking.openSettings(); else void enable(); }} />
-    {status === "error" && <Text style={{ color: colors.muted, textAlign: "right" }}>تعذر إعداد الإشعارات. تأكد من اتصالك وإعدادات التطبيق ثم حاول مجدداً.</Text>}
+    {status === "error" && <Text style={{ color: colors.muted, textAlign: "right", fontFamily: typography.regular }}>تعذر إعداد الإشعارات. تأكد من اتصالك وإعدادات التطبيق ثم حاول مجدداً.</Text>}
   </View>;
 }
 const styles = StyleSheet.create({
   panel: { padding: spacing.lg, borderWidth: 1, borderRadius: radius.lg, gap: spacing.md },
-  title: { fontSize: typeScale.cardTitle, fontWeight: "700", textAlign: "right", includeFontPadding: false },
-  description: { fontSize: typeScale.body, lineHeight: 23, textAlign: "right", includeFontPadding: false },
+  title: { fontSize: typeScale.cardTitle, fontFamily: typography.bold, textAlign: "right", includeFontPadding: false },
+  description: { fontFamily: typography.regular, fontSize: typeScale.body, lineHeight: 23, textAlign: "right", includeFontPadding: false },
 });

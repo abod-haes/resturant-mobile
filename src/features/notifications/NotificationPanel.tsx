@@ -7,7 +7,7 @@ import { useFeedback } from "../../shared/ui/AppToast";
 import { ApiError } from "../../shared/api";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
-import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
+import { spacing, radius, typeScale, useAppTheme, typography } from "../../shared/config/theme";
 import { useAppLayout } from "../../shared/config/useAppLayout";
 import { strings } from "../../shared/config/strings";
 import { prepareNotifications, type PreparationResult } from "./runtime";
@@ -126,9 +126,9 @@ export function NotificationPanel({ employeeId }: { employeeId: string | null })
 }
 const styles = StyleSheet.create({
   header: { gap: spacing.sm },
-  title: { fontWeight: "800", fontSize: typeScale.cardTitle, textAlign: "right" },
-  message: { fontSize: typeScale.meta, textAlign: "right" },
-  listTitle: { fontSize: typeScale.body, fontWeight: "800", textAlign: "right" },
+  title: { fontFamily: typography.extraBold, fontSize: typeScale.cardTitle, textAlign: "right" },
+  message: { fontFamily: typography.regular, fontSize: typeScale.meta, textAlign: "right" },
+  listTitle: { fontSize: typeScale.body, fontFamily: typography.extraBold, textAlign: "right" },
   deviceSection: { gap: spacing.md, paddingTop: spacing.sm },
   device: {
     flexDirection: "row-reverse", flexWrap: "wrap", gap: spacing.sm,
@@ -139,6 +139,6 @@ const styles = StyleSheet.create({
   compactDevice: { flexDirection: "column", alignItems: "stretch" },
   compactDeviceText: { flex: 0, minWidth: 0, width: "100%" },
   compactDeviceButton: { width: "100%" },
-  deviceName: { fontSize: typeScale.body, fontWeight: "700", textAlign: "right", flexShrink: 1 },
-  deviceDate: { fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
+  deviceName: { fontSize: typeScale.body, fontFamily: typography.bold, textAlign: "right", flexShrink: 1 },
+  deviceDate: { fontFamily: typography.regular, fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
 });
