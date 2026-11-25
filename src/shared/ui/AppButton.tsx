@@ -23,10 +23,10 @@ export function AppButton({
 }: Props) {
   const { colors } = useAppTheme();
   const backgroundColor = variant === "primary"
-    ? colors.primary
+    ? colors.button
     : variant === "danger" ? colors.dangerSurface : colors.surfaceAlt;
   const foreground = foregroundColor ?? (variant === "primary"
-    ? colors.onPrimary
+    ? "#FFFFFF"
     : variant === "danger" ? colors.danger : colors.text);
 
   return (
