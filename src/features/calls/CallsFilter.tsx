@@ -38,7 +38,7 @@ export function CallsFilter({ value, onChange, disabled = false }: Props) {
       >
         <Tabs.Indicator
           className="rounded-xl"
-          style={{ backgroundColor: colors.primary }}
+          style={{ backgroundColor: colors.button }}
         />
         {options.map((option) => (
           <Tabs.Trigger

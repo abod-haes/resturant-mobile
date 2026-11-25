@@ -24,7 +24,7 @@ export function ShiftPanel({ shift, loading, changing, error, onToggle, onRetry 
   }) : null;
 
   return (
-    <AppCard>
+    <AppCard style={[styles.panel, { backgroundColor: active ? colors.successSurface : colors.surface }]}>
       <View style={styles.header}>
         <View accessible={false} style={[styles.dot, { backgroundColor: active ? colors.success : colors.muted }]} />
         <Text accessibilityRole="header" style={[styles.heading, { color: colors.text }]}>{strings.shiftTitle}</Text>
@@ -65,9 +65,10 @@ export function ShiftPanel({ shift, loading, changing, error, onToggle, onRetry 
   );
 }
 const styles = StyleSheet.create({
+  panel: { padding: spacing.md, gap: spacing.sm },
   header: { flexDirection: "row-reverse", alignItems: "center", gap: spacing.sm },
   dot: { width: 9, height: 9, borderRadius: 5 },
   heading: { fontSize: typeScale.cardTitle, fontWeight: "800", textAlign: "right", flexShrink: 1 },
-  status: { borderRadius: radius.sm, padding: spacing.lg, gap: spacing.sm },
+  status: { borderRadius: radius.sm, padding: spacing.sm, gap: spacing.xs },
   state: { textAlign: "right", fontSize: typeScale.body, fontWeight: "600", flexShrink: 1 },
 });
