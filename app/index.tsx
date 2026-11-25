@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Tabs } from "heroui-native/tabs";
 import { Bell, UserRound } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAppTheme, spacing, typeScale, typography } from "../src/shared/config/theme";
+import { useAppTheme, spacing, typeScale } from "../src/shared/config/theme";
 import { View, StyleSheet } from "react-native";
 import { AccountScreen, useSession } from "../src/features/auth";
 import { EmployeeHomeScreen } from "../src/features/calls";
@@ -29,7 +29,7 @@ export default function Home() {
     </AppScreen>
   );
 }
-const styles = StyleSheet.create({ center: { flex: 1, justifyContent: "center" } });
+const createStyles = (typography: import("../../shared/config/theme").AppTypography) => StyleSheet.create({ center: { flex: 1, justifyContent: "center" } });
 
 const tabs = [
   { value: "notifications", label: strings.notifications, Icon: Bell },
@@ -37,7 +37,8 @@ const tabs = [
 ] as const;
 function EmployeeTabs() {
   const [tab, setTab] = useState<"notifications" | "account">("notifications");
-  const { colors } = useAppTheme();
+  const { colors, typography } = useAppTheme();
+  const styles = createStyles(typography);
   const insets = useSafeAreaInsets();
   return (
     <Tabs value={tab} onValueChange={(next) => { if (next === "notifications" || next === "account") setTab(next); }} variant="primary" style={{ flex: 1, backgroundColor: colors.background }}>
@@ -51,7 +52,7 @@ function EmployeeTabs() {
             {({ isSelected }) => (
               <>
                 <Icon size={22} color={isSelected ? colors.onPrimary : colors.muted} />
-                <Tabs.Label style={{ color: isSelected ? colors.onPrimary : colors.text, fontSize: typeScale.control, fontFamily: typography.bold }}>{label}</Tabs.Label>
+                <Tabs.Label style={{ color: isSelected ? colors.onPrimary : colors.text, fontSize: typeScale.control, ...typography.bold }}>{label}</Tabs.Label>
               </>
             )}
           </Tabs.Trigger>

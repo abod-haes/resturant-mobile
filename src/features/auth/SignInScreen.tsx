@@ -10,14 +10,15 @@ import { getErrorPresentation, normalizeApiError } from "../../shared/api/error-
 import type { FieldErrors } from "../../shared/api/error-presentation";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
-import { radius, spacing, typeScale, useAppTheme, typography } from "../../shared/config/theme";
+import { radius, spacing, typeScale, useAppTheme } from "../../shared/config/theme";
 import { useAppLayout } from "../../shared/config/useAppLayout";
 import { strings } from "../../shared/config/strings";
 import { useSession } from "./SessionProvider";
 
 export function SignInScreen() {
   const { signIn, notice } = useSession();
-  const { colors } = useAppTheme();
+  const { colors, typography } = useAppTheme();
+  const styles = createStyles(typography);
   const layout = useAppLayout();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -112,18 +113,18 @@ export function SignInScreen() {
     </AppScreen>
   );
 }
-const styles = StyleSheet.create({
+const createStyles = (typography: import("../../shared/config/theme").AppTypography) => StyleSheet.create({
   flex: { flex: 1 },
   content: {
     flexGrow: 1, justifyContent: "center", alignSelf: "center",
     width: "100%", gap: spacing.md,
   },
   brand: { alignItems: "center", gap: spacing.sm, marginBottom: spacing.xxl },
-  eyebrow: { textAlign: "center", fontSize: 22, fontFamily: typography.bold },
-  title: { textAlign: "center", fontSize: typeScale.hero, fontFamily: typography.extraBold },
-  description: { textAlign: "center", fontFamily: typography.regular, fontSize: typeScale.control, marginBottom: spacing.sm },
+  eyebrow: { textAlign: "center", fontSize: 22, ...typography.bold },
+  title: { textAlign: "center", fontSize: typeScale.hero, ...typography.extraBold },
+  description: { textAlign: "center", ...typography.regular, fontSize: typeScale.control, marginBottom: spacing.sm },
   form: { marginTop: spacing.sm, gap: spacing.lg },
-  notice: { fontFamily: typography.regular, fontSize: typeScale.meta, textAlign: "right" },
+  notice: { ...typography.regular, fontSize: typeScale.meta, textAlign: "right" },
   demo: { padding: spacing.lg, borderRadius: radius.md, marginTop: spacing.md },
-  demoText: { fontFamily: typography.regular, fontSize: typeScale.caption, textAlign: "right" },
+  demoText: { ...typography.regular, fontSize: typeScale.caption, textAlign: "right" },
 });

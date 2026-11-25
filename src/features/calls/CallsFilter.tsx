@@ -1,6 +1,6 @@
 import { Tabs } from "heroui-native/tabs";
 import { strings } from "../../shared/config/strings";
-import { spacing, typeScale, useAppTheme, typography } from "../../shared/config/theme";
+import { spacing, typeScale, useAppTheme } from "../../shared/config/theme";
 import type { CallFilter } from "./model";
 
 type Props = {
@@ -17,7 +17,7 @@ const options: readonly { value: CallFilter; label: string }[] = [
 
 /** HeroUI Native tabs with a transparent list and right-to-left Arabic layout. */
 export function CallsFilter({ value, onChange, disabled = false }: Props) {
-  const { colors } = useAppTheme();
+  const { colors, typography } = useAppTheme();
 
   return (
     <Tabs
@@ -55,7 +55,7 @@ export function CallsFilter({ value, onChange, disabled = false }: Props) {
                 style={{
                   color: isSelected ? colors.onPrimary : colors.text,
                   fontSize: typeScale.body,
-                  fontFamily: typography.bold,
+                  ...typography.bold,
                   writingDirection: "rtl",
                   flexShrink: 1,
                 }}

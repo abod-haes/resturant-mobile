@@ -32,7 +32,7 @@ export function useAppTheme() {
     dangerSurface: t.dangerSurface, success: t.success, successSurface: t.successSurface,
     button: t.primaryStrong, gold: t.secondary, onPrimary: t.onPrimary, input: t.input,
   } : { ...base, onPrimary: "#FFFFFF" };
-  return { colors, dark, identity, fontFamily: t?.fontFamily ?? "cairo",
+  return { colors, dark, identity, typography: t?.fontFamily === "system" ? systemTypography : cairoTypography, fontFamily: t?.fontFamily ?? "cairo",
     skeleton: t?.skeleton ?? base.surfaceAlt, buttonPressed: t?.primaryPressed ?? base.primaryPressed };
 }
 
@@ -44,3 +44,16 @@ export const typography = {
   bold: "Cairo_700Bold",
   extraBold: "Cairo_800ExtraBold",
 } as const;
+
+type FontStyle = { fontFamily?: string; fontWeight?: "400" | "500" | "600" | "700" | "800" };
+export type AppTypography = Record<keyof typeof typography, FontStyle>;
+const cairoTypography: AppTypography = {
+  regular: { fontFamily: typography.regular }, medium: { fontFamily: typography.medium },
+  semibold: { fontFamily: typography.semibold }, bold: { fontFamily: typography.bold },
+  extraBold: { fontFamily: typography.extraBold },
+};
+const systemTypography: AppTypography = {
+  regular: { fontWeight: "400" }, medium: { fontWeight: "500" },
+  semibold: { fontWeight: "600" }, bold: { fontWeight: "700" },
+  extraBold: { fontWeight: "800" },
+};

@@ -6,12 +6,14 @@ import { AppButton } from "../../shared/ui/AppButton";
 import { AppCard } from "../../shared/ui/AppCard";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
 import { strings } from "../../shared/config/strings";
-import { useAppTheme, spacing, radius, typeScale, typography } from "../../shared/config/theme";
+import { useAppTheme, spacing, radius, typeScale } from "../../shared/config/theme";
 import { useSession } from "./SessionProvider";
 
 export function AccountScreen({ onChangePassword }: { onChangePassword: () => void }) {
   const { user, signOut } = useSession();
-  const { colors, dark, identity } = useAppTheme();
+  const { colors, dark, identity, typography } = useAppTheme();
+  const styles = createStyles(typography);
+  const logoUrl = identity?.branding.logoUrl;
   const [failedLogo, setFailedLogo] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
@@ -30,7 +32,7 @@ export function AccountScreen({ onChangePassword }: { onChangePassword: () => vo
         <Text accessibilityRole="header" style={[styles.bannerTitle, { color: colors.onPrimary }]}>{strings.account}</Text>
       </View>
       <View style={styles.profile}>
-        <View style={[styles.avatar, { backgroundColor: colors.surfaceAlt }]}>{identity?.branding.logoUrl && identity.branding.logoUrl !== failedLogo ? <Image source={{ uri: identity.branding.logoUrl }} style={styles.logo} resizeMode="contain" onError={() => setFailedLogo(identity.branding.logoUrl)} /> : <UserRound size={36} color={colors.primary} />}</View>
+        <View style={[styles.avatar, { backgroundColor: colors.surfaceAlt }]}>{logoUrl && logoUrl !== failedLogo ? <Image source={{ uri: logoUrl }} style={styles.logo} resizeMode="contain" onError={() => setFailedLogo(logoUrl)} /> : <UserRound size={36} color={colors.primary} />}</View>
         <View style={styles.details}>
           <Text style={[styles.name, { color: colors.text }]}>{user?.name ?? user?.username ?? strings.employee}</Text>
           <Text style={[styles.label, { color: colors.muted }]}>{user?.department === "hookah" ? strings.hookahDepartment : user?.department === "waiter" ? strings.waiterDepartment : strings.employee}</Text>
@@ -66,16 +68,16 @@ export function AccountScreen({ onChangePassword }: { onChangePassword: () => vo
     </Modal>
   </AppScreen>;
 }
-const styles = StyleSheet.create({
+const createStyles = (typography: import("../../shared/config/theme").AppTypography) => StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.xl, width: "100%", maxWidth: 600, alignSelf: "center" },
   banner: { minHeight: 64, borderRadius: radius.md, justifyContent: "center", alignItems: "center" },
   logo: { width: 58, height: 58, borderRadius: 10 },
-  bannerTitle: { fontSize: typeScale.title, fontFamily: typography.extraBold },
+  bannerTitle: { fontSize: typeScale.title, ...typography.extraBold },
   profile: { flexDirection: "row-reverse", alignItems: "center", gap: spacing.lg, paddingVertical: spacing.md },
   avatar: { width: 76, height: 76, borderRadius: 38, alignItems: "center", justifyContent: "center" },
   details: { flex: 1, minWidth: 0, gap: spacing.xs },
-  name: { fontSize: typeScale.sectionTitle, fontFamily: typography.extraBold, textAlign: "right" },
-  label: { fontFamily: typography.regular, fontSize: typeScale.body, textAlign: "right", flexShrink: 1 },
+  name: { fontSize: typeScale.sectionTitle, ...typography.extraBold, textAlign: "right" },
+  label: { ...typography.regular, fontSize: typeScale.body, textAlign: "right", flexShrink: 1 },
   row: { flexDirection: "row-reverse", alignItems: "center", gap: spacing.md, flexWrap: "wrap" },
   backdrop: { flex: 1, backgroundColor: "#0009", justifyContent: "center", padding: spacing.xxl },
   dialog: { width: "100%", maxWidth: 440, alignSelf: "center" },

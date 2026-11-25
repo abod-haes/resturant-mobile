@@ -7,7 +7,7 @@ import { useFeedback } from "../../shared/ui/AppToast";
 import { ApiError } from "../../shared/api";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
-import { spacing, radius, typeScale, useAppTheme, typography } from "../../shared/config/theme";
+import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
 import { useAppLayout } from "../../shared/config/useAppLayout";
 import { strings } from "../../shared/config/strings";
 import { prepareNotifications, type PreparationResult } from "./runtime";
@@ -16,7 +16,8 @@ import { usePushDevices } from "./usePushDevices";
 type Status = "idle" | "loading" | PreparationResult | "error";
 
 export function NotificationPanel({ employeeId }: { employeeId: string | null }) {
-  const { colors } = useAppTheme();
+  const { colors, typography } = useAppTheme();
+  const styles = createStyles(typography);
   const layout = useAppLayout();
   const { showToast } = useFeedback();
   const { devices, remove, refresh } = usePushDevices(employeeId);
@@ -124,11 +125,11 @@ export function NotificationPanel({ employeeId }: { employeeId: string | null })
     </AppCard>
   );
 }
-const styles = StyleSheet.create({
+const createStyles = (typography: import("../../shared/config/theme").AppTypography) => StyleSheet.create({
   header: { gap: spacing.sm },
-  title: { fontFamily: typography.extraBold, fontSize: typeScale.cardTitle, textAlign: "right" },
-  message: { fontFamily: typography.regular, fontSize: typeScale.meta, textAlign: "right" },
-  listTitle: { fontSize: typeScale.body, fontFamily: typography.extraBold, textAlign: "right" },
+  title: { ...typography.extraBold, fontSize: typeScale.cardTitle, textAlign: "right" },
+  message: { ...typography.regular, fontSize: typeScale.meta, textAlign: "right" },
+  listTitle: { fontSize: typeScale.body, ...typography.extraBold, textAlign: "right" },
   deviceSection: { gap: spacing.md, paddingTop: spacing.sm },
   device: {
     flexDirection: "row-reverse", flexWrap: "wrap", gap: spacing.sm,
@@ -139,6 +140,6 @@ const styles = StyleSheet.create({
   compactDevice: { flexDirection: "column", alignItems: "stretch" },
   compactDeviceText: { flex: 0, minWidth: 0, width: "100%" },
   compactDeviceButton: { width: "100%" },
-  deviceName: { fontSize: typeScale.body, fontFamily: typography.bold, textAlign: "right", flexShrink: 1 },
-  deviceDate: { fontFamily: typography.regular, fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
+  deviceName: { fontSize: typeScale.body, ...typography.bold, textAlign: "right", flexShrink: 1 },
+  deviceDate: { ...typography.regular, fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
 });

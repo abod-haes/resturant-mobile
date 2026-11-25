@@ -4,7 +4,7 @@ import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
 import { AppButton } from "../../shared/ui/AppButton";
 import { AppCard } from "../../shared/ui/AppCard";
-import { spacing, radius, typeScale, useAppTheme, typography } from "../../shared/config/theme";
+import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
 import { strings } from "../../shared/config/strings";
 
 type Props = {
@@ -16,7 +16,8 @@ type Props = {
   onRetry(): void;
 };
 export function ShiftPanel({ shift, loading, changing, error, onToggle, onRetry }: Props) {
-  const { colors } = useAppTheme();
+  const { colors, typography } = useAppTheme();
+  const styles = createStyles(typography);
   const active = Boolean(shift);
   const cooldown = useRetryCooldown(error);
   const autoEnd = shift ? new Date(shift.autoEndAt).toLocaleTimeString("ar-SY", {
@@ -64,11 +65,11 @@ export function ShiftPanel({ shift, loading, changing, error, onToggle, onRetry 
     </AppCard>
   );
 }
-const styles = StyleSheet.create({
+const createStyles = (typography: import("../../shared/config/theme").AppTypography) => StyleSheet.create({
   panel: { padding: spacing.md, gap: spacing.sm },
   header: { flexDirection: "row-reverse", alignItems: "center", gap: spacing.sm },
   dot: { width: 9, height: 9, borderRadius: 5 },
-  heading: { fontSize: typeScale.cardTitle, fontFamily: typography.extraBold, textAlign: "right", flexShrink: 1 },
+  heading: { fontSize: typeScale.cardTitle, ...typography.extraBold, textAlign: "right", flexShrink: 1 },
   status: { borderRadius: radius.sm, padding: spacing.sm, gap: spacing.xs },
-  state: { textAlign: "right", fontSize: typeScale.body, fontFamily: typography.semibold, flexShrink: 1 },
+  state: { textAlign: "right", fontSize: typeScale.body, ...typography.semibold, flexShrink: 1 },
 });

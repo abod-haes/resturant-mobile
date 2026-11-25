@@ -10,14 +10,15 @@ import { getErrorPresentation, normalizeApiError } from "../../shared/api/error-
 import type { AppField, FieldErrors } from "../../shared/api/error-presentation";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
-import { spacing, typeScale, useAppTheme, typography } from "../../shared/config/theme";
+import { spacing, typeScale, useAppTheme } from "../../shared/config/theme";
 import { useAppLayout } from "../../shared/config/useAppLayout";
 import { strings } from "../../shared/config/strings";
 import { useSession } from "./SessionProvider";
 
 export function ChangePasswordScreen() {
   const { changePassword, user } = useSession();
-  const { colors } = useAppTheme();
+  const { colors, typography } = useAppTheme();
+  const styles = createStyles(typography);
   const layout = useAppLayout();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -94,13 +95,13 @@ export function ChangePasswordScreen() {
     </AppScreen>
   );
 }
-const styles = StyleSheet.create({
+const createStyles = (typography: import("../../shared/config/theme").AppTypography) => StyleSheet.create({
   safe: { flex: 1 },
   content: {
     flexGrow: 1, justifyContent: "center", gap: spacing.lg,
     alignSelf: "center", width: "100%",
   },
   form: { gap: spacing.lg },
-  title: { fontSize: typeScale.title, fontFamily: typography.extraBold, textAlign: "right" },
-  hint: { fontFamily: typography.regular, fontSize: typeScale.body, textAlign: "right" },
+  title: { fontSize: typeScale.title, ...typography.extraBold, textAlign: "right" },
+  hint: { ...typography.regular, fontSize: typeScale.body, textAlign: "right" },
 });

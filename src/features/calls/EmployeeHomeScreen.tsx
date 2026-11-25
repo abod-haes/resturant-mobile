@@ -6,7 +6,7 @@ import type { ListRenderItemInfo } from "react-native";
 import { AppScreen } from "../../shared/ui/AppScreen";
 import type { ServiceCall } from "../../shared/api";
 import { strings } from "../../shared/config/strings";
-import { spacing, radius, typeScale, useAppTheme, typography } from "../../shared/config/theme";
+import { spacing, radius, typeScale, useAppTheme } from "../../shared/config/theme";
 import { useAppLayout } from "../../shared/config/useAppLayout";
 import { AppButton } from "../../shared/ui/AppButton";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
@@ -22,7 +22,8 @@ import { NotificationPermissionPrompt } from "../notifications";
 /** Composition only: server state/actions live in feature hooks, not the screen. */
 export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   const { user } = useSession();
-  const { colors } = useAppTheme();
+  const { colors, typography } = useAppTheme();
+  const styles = createStyles(typography);
   const layout = useAppLayout();
   const list = useRef<FlatList<ServiceCall>>(null);
   const hasScrolled = useRef(false);
@@ -152,26 +153,26 @@ export function EmployeeHomeScreen({ footer }: { footer?: ReactNode }) {
   );
 }
 function CallSeparator() {
-  return <View style={styles.separator} />;
+  return <View style={{ height: spacing.md }} />;
 }
-const styles = StyleSheet.create({
+const createStyles = (typography: import("../../shared/config/theme").AppTypography) => StyleSheet.create({
   content: {
     width: "100%", minWidth: 0, alignSelf: "center",
     paddingTop: spacing.md, paddingBottom: spacing.huge, flexGrow: 1,
   },
   headerSections: { gap: spacing.md, paddingBottom: spacing.md },
   banner: { minHeight: 64, borderRadius: radius.md, flexDirection: "row-reverse", alignItems: "center", justifyContent: "center", gap: spacing.md, padding: spacing.lg },
-  bannerTitle: { fontSize: typeScale.title, fontFamily: typography.extraBold },
+  bannerTitle: { fontSize: typeScale.title, ...typography.extraBold },
   sectionHeading: { flexDirection: "row-reverse", alignItems: "center", flexWrap: "wrap", gap: spacing.md, paddingTop: spacing.md },
   sectionText: { flex: 1, minWidth: 0, alignItems: "flex-end", gap: spacing.xs },
-  sectionTitle: { fontSize: typeScale.sectionTitle, fontFamily: typography.extraBold, textAlign: "right", flexShrink: 1 },
-  sectionDescription: { fontFamily: typography.regular, fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
-  filterTitle: { fontFamily: typography.regular, fontSize: typeScale.meta, textAlign: "right" },
+  sectionTitle: { fontSize: typeScale.sectionTitle, ...typography.extraBold, textAlign: "right", flexShrink: 1 },
+  sectionDescription: { ...typography.regular, fontSize: typeScale.caption, textAlign: "right", flexShrink: 1 },
+  filterTitle: { ...typography.regular, fontSize: typeScale.meta, textAlign: "right" },
   counter: { minWidth: 36, minHeight: 36, borderRadius: radius.sm, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
-  counterText: { fontSize: typeScale.meta, fontFamily: typography.extraBold },
+  counterText: { fontSize: typeScale.meta, ...typography.extraBold },
   separator: { height: spacing.md },
   footer: { gap: spacing.md, paddingTop: spacing.lg },
   empty: { borderRadius: radius.lg, borderWidth: 1, gap: spacing.sm },
-  emptyTitle: { fontSize: typeScale.cardTitle, fontFamily: typography.extraBold, textAlign: "center" },
-  emptyHint: { fontFamily: typography.regular, fontSize: typeScale.meta, textAlign: "center" },
+  emptyTitle: { fontSize: typeScale.cardTitle, ...typography.extraBold, textAlign: "center" },
+  emptyHint: { ...typography.regular, fontSize: typeScale.meta, textAlign: "center" },
 });
