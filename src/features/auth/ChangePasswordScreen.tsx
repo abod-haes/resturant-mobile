@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, Text, StyleSheet } from "react-native";
 import { AppScreen } from "../../shared/ui/AppScreen";
@@ -15,7 +16,7 @@ import { strings } from "../../shared/config/strings";
 import { useSession } from "./SessionProvider";
 
 export function ChangePasswordScreen() {
-  const { changePassword } = useSession();
+  const { changePassword, user } = useSession();
   const { colors } = useAppTheme();
   const layout = useAppLayout();
   const [currentPassword, setCurrentPassword] = useState("");
@@ -62,7 +63,7 @@ export function ChangePasswordScreen() {
         <ScrollView contentContainerStyle={[styles.content, { padding: layout.formPadding, maxWidth: layout.maxFormWidth }]}
           keyboardShouldPersistTaps="handled">
           <Text accessibilityRole="header" style={[styles.title, { color: colors.text }]}>{strings.changePassword}</Text>
-          <Text style={[styles.hint, { color: colors.muted }]}>{strings.changePasswordHint}</Text>
+          <Text style={[styles.hint, { color: colors.muted }]}>{user?.mustChangePassword ? strings.changePasswordHint : strings.changePassword}</Text>
           <AppCard style={styles.form}>
             <AppInput
               label={strings.currentPassword} textDirection="ltr" error={fields.currentPassword}
@@ -87,6 +88,7 @@ export function ChangePasswordScreen() {
               disabled={cooldown > 0}
             />
           </AppCard>
+          {!user?.mustChangePassword && <AppButton title={strings.cancel} variant="secondary" onPress={() => router.replace("/")} />}
         </ScrollView>
       </KeyboardAvoidingView>
     </AppScreen>

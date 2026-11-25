@@ -9,6 +9,6 @@ export default function ChangePassword() {
   if (status === "loading") return <Feedback message={strings.loading} loading />;
   if (status === "restore-error")
     return <Feedback message={strings.sessionRestoreError} retry={() => void restoreSession()} />;
-  if (!user?.mustChangePassword) return <Redirect href="/" />;
+  if (!user) return <Redirect href="/sign-in" />;
   return <ChangePasswordScreen />;
 }
