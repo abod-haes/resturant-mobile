@@ -1,4 +1,13 @@
 export const strings = {
+  account: "الحساب",
+  notifications: "الإشعارات",
+  appearance: "المظهر",
+  systemAppearance: "حسب النظام",
+  lightAppearance: "فاتح",
+  darkAppearance: "داكن",
+  logoutConfirm: "هل أنت متأكد أنك تريد تسجيل الخروج من حسابك؟",
+  confirmLogout: "تأكيد الخروج",
+  employee: "موظف",
   appName: "خدمة الطاولات",
   welcome: "أهلاً بك",
   signIn: "تسجيل الدخول",
