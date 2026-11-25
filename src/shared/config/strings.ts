@@ -1,4 +1,6 @@
 export const strings = {
+  showPassword: "إظهار كلمة المرور",
+  hidePassword: "إخفاء كلمة المرور",
   account: "الحساب",
   notifications: "الإشعارات",
   appearance: "المظهر",
