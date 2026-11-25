@@ -19,3 +19,12 @@ export function useAppTheme(): { colors: AppColors; dark: boolean } {
   const dark = useColorScheme() === "dark";
   return { colors: dark ? colorPalettes.dark : colorPalettes.light, dark };
 }
+
+/** Loaded once by the root layout; use named static faces rather than synthesized weights. */
+export const typography = {
+  regular: "Cairo_400Regular",
+  medium: "Cairo_500Medium",
+  semibold: "Cairo_600SemiBold",
+  bold: "Cairo_700Bold",
+  extraBold: "Cairo_800ExtraBold",
+} as const;

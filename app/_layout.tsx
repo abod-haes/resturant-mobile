@@ -1,4 +1,5 @@
 import "../global.css";
+import { useFonts, Cairo_400Regular, Cairo_500Medium, Cairo_600SemiBold, Cairo_700Bold, Cairo_800ExtraBold } from "@expo-google-fonts/cairo";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { HeroUINativeProvider } from "heroui-native/provider";
 import { useState } from "react";
@@ -23,12 +24,14 @@ function AuthenticatedServices() {
   );
 }
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({ Cairo_400Regular, Cairo_500Medium, Cairo_600SemiBold, Cairo_700Bold, Cairo_800ExtraBold });
   const [client] = useState(() => new QueryClient({
     defaultOptions: {
       queries: { retry: canRetryRead, staleTime: 10000, refetchOnReconnect: true },
       mutations: { retry: false },
     },
   }));
+  if (!fontsLoaded && !fontError) return null;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <HeroUINativeProvider>
