@@ -17,8 +17,8 @@ export function RestaurantThemeProvider({ children }: PropsWithChildren) {
       return identity;
     },
     staleTime: 60_000,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
   });
   const identity = restaurantId && query.data?.id === restaurantId ? query.data : null;
   return <RestaurantIdentityContext.Provider value={identity}>{children}</RestaurantIdentityContext.Provider>;
