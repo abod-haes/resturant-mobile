@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserRound, Moon, LogOut } from "lucide-react-native";
 import { View, Text, ScrollView, StyleSheet, Modal, Image } from "react-native";
 import { AppScreen } from "../../shared/ui/AppScreen";
@@ -15,6 +15,7 @@ export function AccountScreen({ onChangePassword }: { onChangePassword: () => vo
   const styles = createStyles(typography);
   const logoUrl = identity?.branding.logoUrl;
   const [failedLogo, setFailedLogo] = useState<string | null>(null);
+  useEffect(() => { setFailedLogo(null); }, [logoUrl, identity?.id]);
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -32,7 +33,7 @@ export function AccountScreen({ onChangePassword }: { onChangePassword: () => vo
         <Text accessibilityRole="header" style={[styles.bannerTitle, { color: colors.onPrimary }]}>{strings.account}</Text>
       </View>
       <View style={styles.profile}>
-        <View style={[styles.avatar, { backgroundColor: colors.surfaceAlt }]}>{logoUrl && logoUrl !== failedLogo ? <Image source={{ uri: logoUrl }} style={styles.logo} resizeMode="contain" onError={() => setFailedLogo(logoUrl)} /> : <UserRound size={36} color={colors.primary} />}</View>
+        <View style={[styles.avatar, { backgroundColor: colors.surfaceAlt }]}>{logoUrl && logoUrl !== failedLogo ? <Image key={logoUrl} accessibilityLabel="شعار المطعم" source={{ uri: logoUrl }} style={styles.logo} resizeMode="contain" onError={() => setFailedLogo(logoUrl)} /> : <UserRound size={36} color={colors.primary} />}</View>
         <View style={styles.details}>
           <Text style={[styles.name, { color: colors.text }]}>{user?.name ?? user?.username ?? strings.employee}</Text>
           <Text style={[styles.label, { color: colors.muted }]}>{user?.department === "hookah" ? strings.hookahDepartment : user?.department === "waiter" ? strings.waiterDepartment : strings.employee}</Text>
