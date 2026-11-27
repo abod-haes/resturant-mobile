@@ -24,11 +24,12 @@ export function CallCard({ call }: { call: ServiceCall }) {
         </View>
         <View style={[styles.icon, { backgroundColor: colors.surfaceAlt }]}><BellRing size={24} color={colors.primary} /></View>
       </View>
-      <Text selectable accessibilityLabel={strings.tableIdentifier + ": " + call.tableId}
-        style={[styles.location, { color: colors.muted }]}>
-        {strings.tableIdentifier}: {call.tableId}
+      <Text style={[styles.location, { color: colors.muted }]}>
+        {strings.table}: {call.tableLabel?.trim() || strings.unknownLocation}
       </Text>
-      <Text style={[styles.location, { color: colors.muted }]}>{strings.locationUnavailable}</Text>
+      <Text style={[styles.location, { color: colors.muted }]}>
+        {call.branchName?.trim() || strings.locationUnavailable}
+      </Text>
       <Text style={[styles.date, { color: colors.muted }]}>{dateLabel}</Text>
     </AppCard>
   );

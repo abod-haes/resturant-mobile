@@ -47,6 +47,8 @@ export const callSchema = z.object({
   id: z.string().min(1),
   branchId: z.string().min(1),
   tableId: z.string().min(1),
+  tableLabel: z.string().nullable().optional(),
+  branchName: z.string().nullable().optional(),
   type: departmentSchema,
   deliveryState: z.enum(["queued", "no_staff"]),
   recipientsCount: z.number().int().nonnegative(),
