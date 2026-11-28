@@ -10,7 +10,7 @@ import { getErrorPresentation, normalizeApiError } from "../../shared/api/error-
 import type { FieldErrors } from "../../shared/api/error-presentation";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
 import { feedbackText, formatFeedback } from "../../shared/i18n/feedback";
-import { radius, spacing, typeScale, useAppTheme } from "../../shared/config/theme";
+import { spacing, typeScale, useAppTheme } from "../../shared/config/theme";
 import { useAppLayout } from "../../shared/config/useAppLayout";
 import { strings } from "../../shared/config/strings";
 import { useSession } from "./SessionProvider";
@@ -76,7 +76,7 @@ export function SignInScreen() {
               error={fields.username}
               value={username}
               onChangeText={(value) => { setUsername(value); clearField("username"); }}
-              placeholder={isMockMode ? strings.demoUsername : strings.username}
+              placeholder={strings.username}
               autoCapitalize="none"
               autoCorrect={false}
               textContentType="username"
@@ -103,11 +103,7 @@ export function SignInScreen() {
               disabled={cooldown > 0}
             />
           </View>
-          {isMockMode && (
-            <View style={[styles.demo, { backgroundColor: colors.surfaceAlt }]}>
-              <Text style={[styles.demoText, { color: colors.muted }]}>{strings.demoHint}</Text>
-            </View>
-          )}
+          {isMockMode && <Text style={[styles.notice, { color: colors.muted }]}>{strings.mockBadge}</Text>}
         </ScrollView>
       </KeyboardAvoidingView>
     </AppScreen>
@@ -125,6 +121,4 @@ const createStyles = (typography: import("../../shared/config/theme").AppTypogra
   description: { textAlign: "center", ...typography.regular, fontSize: typeScale.control, marginBottom: spacing.sm },
   form: { marginTop: spacing.sm, gap: spacing.lg },
   notice: { ...typography.regular, fontSize: typeScale.meta, textAlign: "right" },
-  demo: { padding: spacing.lg, borderRadius: radius.md, marginTop: spacing.md },
-  demoText: { ...typography.regular, fontSize: typeScale.caption, textAlign: "right" },
 });

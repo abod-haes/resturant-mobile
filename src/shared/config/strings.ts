@@ -18,8 +18,6 @@ export const strings = {
   password: "كلمة المرور",
   login: "دخول",
   logout: "تسجيل الخروج",
-  demoHint: "وضع تجريبي: اختر اسم مستخدم موجوداً. لا يتم التحقق من كلمة المرور هنا.",
-  demoUsername: "مثال: waiter.demo",
   callsTitle: "استدعاءات الطاولات",
   allCalls: "الكل",
   displayedCallsCount: "الاستدعاءات المعروضة",
