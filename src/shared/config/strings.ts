@@ -16,7 +16,7 @@ export const strings = {
   signInDescription: "سجّل دخولك لمتابعة الاستدعاءات في فرعك.",
   username: "اسم المستخدم",
   password: "كلمة المرور",
-  login: "دخول",
+  login: "تسجيل الدخول",
   logout: "تسجيل الخروج",
   demoUsername: "مثال: waiter.demo",
   callsTitle: "استدعاءات الطاولات",
