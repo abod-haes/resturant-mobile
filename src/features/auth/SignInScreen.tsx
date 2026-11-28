@@ -5,7 +5,6 @@ import { AppButton } from "../../shared/ui/AppButton";
 import Svg, { Path, Circle } from "react-native-svg";
 import { AppInput } from "../../shared/ui/AppInput";
 import { AppErrorNotice } from "../../shared/ui/AppErrorNotice";
-import { isMockMode } from "../../shared/api";
 import { getErrorPresentation, normalizeApiError } from "../../shared/api/error-presentation";
 import type { FieldErrors } from "../../shared/api/error-presentation";
 import { useRetryCooldown } from "../../shared/api/use-retry-cooldown";
@@ -103,7 +102,6 @@ export function SignInScreen() {
               disabled={cooldown > 0}
             />
           </View>
-          {isMockMode && <Text style={[styles.notice, { color: colors.muted }]}>{strings.mockBadge}</Text>}
         </ScrollView>
       </KeyboardAvoidingView>
     </AppScreen>

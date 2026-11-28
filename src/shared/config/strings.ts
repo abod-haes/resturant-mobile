@@ -45,7 +45,6 @@ export const strings = {
   unknownLocation: "الموقع غير محدد",
   retry: "إعادة المحاولة",
   more: "عرض المزيد",
-  mockBadge: "نسخة تجريبية",
   loading: "جاري التحميل...",
   formMissing: "أدخل اسم المستخدم وكلمة المرور.",
   sessionRestoreError: "تعذر التحقق من جلستك. يمكن إعادة المحاولة بدون فقد تسجيل الدخول.",

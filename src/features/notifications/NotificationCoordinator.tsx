@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { AppState, Platform } from "react-native";
 import { onlineManager, useQueryClient } from "@tanstack/react-query";
-import { employeeApi, isMockMode } from "../../shared/api";
+import { employeeApi } from "../../shared/api";
 import type { EmployeeStreamEvent } from "../../shared/api/employee-events";
 import { employeeKeys } from "../../shared/api/query-keys";
 import { acceptEmployeeEvent } from "./event-routing";
@@ -73,7 +73,7 @@ export function NotificationCoordinator({
     }
 
     function syncStream() {
-      const shouldRun = foreground && online && !disposed && !isMockMode && Platform.OS !== "web";
+      const shouldRun = foreground && online && !disposed && Platform.OS !== "web";
       if (!shouldRun && stopStream) {
         stopStream();
         stopStream = null;
