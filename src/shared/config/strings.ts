@@ -18,6 +18,7 @@ export const strings = {
   password: "كلمة المرور",
   login: "دخول",
   logout: "تسجيل الخروج",
+  demoUsername: "مثال: waiter.demo",
   callsTitle: "استدعاءات الطاولات",
   allCalls: "الكل",
   displayedCallsCount: "الاستدعاءات المعروضة",
